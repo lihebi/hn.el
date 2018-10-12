@@ -1,0 +1,47 @@
+#+TITLE: Another Hacker News Client
+
+
+* Introduction
+
+Lincoln de Sousa has clarete/hackernews.el
+https://github.com/clarete/hackernews.el. It supports list stories,
+open link in internal/external browser, mark as read. However, that is
+hardly any improvement from reading hackernews on web.
+
+This client is designed to offer a premium reading experience.
+
+** TODO Subscribe for update for easy tracking
+When I read a topic on HN, I will only read the threads at that
+time. I'll probably not going to read any updates to the thread
+afterwards unless it is a reply to my comment (and I seldom post
+comments, thus very rarely to read the thread again). There needs a
+solution for that: I should be able to subscribe to the thread and
+receive the new contents and consume them easily.
+
+- Subscribe to a topic
+- list subscribed topics, and the meta data (score and comment count)
+- update (new comment) to subscribed topic should show up in a status
+  control panel
+- each comment status (new or read) is shown explicitly in the comment
+  tree-view
+- mark comment as read/unread
+
+** TODO Notes
+We should be able to take variety of notes, including:
+- Star/Label a comment/topic. Can give different labels.
+- Write notes. Can be used to compose a reply. Probably not support
+  login and post reply directly. Do it on web interface is easier and
+  good enough.
+
+** TODO Following users
+Follow a user. You can set your user ID and the user IDs you care
+about, with different tags. Then, you can
+- browse all history thread they post, comment
+- receive (see) their recent post in a higher priority whenever they
+  post a thread or comment
+- when reading the list or comments, have their ones highlighted
+
+** TODO Reproducible
+Finally, all these reading data are cleanly stored in lists and can be
+version controlled to reproduce the exact reading status at any of
+your machine, at any given time.
