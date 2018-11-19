@@ -26,6 +26,11 @@ receive the new contents and consume them easily.
   tree-view
 - mark comment as read/unread
 
+** TODO easy for scanning
+- selected keyword highlights
+- comments & points highlights
+- selected source highlights
+
 ** TODO Notes
 We should be able to take variety of notes, including:
 - Star/Label a comment/topic. Can give different labels.
