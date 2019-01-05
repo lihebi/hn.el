@@ -20,6 +20,19 @@
 (require 'json)
 (require 'url)
 
+(defvar hn-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "g" #'hn-reload)
+    (define-key map "m" #'hn-load-more-stories)
+    (define-key map "n" #'next-line)
+    (define-key map "p" #'previous-line)
+    (define-key map "l" #'hn-list-new)
+    (define-key map "L" #'hn-list-all)
+    (define-key map "o" #'hn-browse-article-current)
+    (define-key map (kbd "RET") #'hn-browse-comment-current)
+    map)
+  "Keymap used in hn buffer.")
+
 (define-derived-mode hn-mode special-mode "HN"
   :group 'hn
   (setq truncate-lines t)
@@ -144,18 +157,6 @@ When nil, visited links are not persisted across sessions."
 (defconst hackernews-site-item-format 
   "Format of Hacker News website item URLs.")
 
-(defvar hn-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "g" #'hn-reload)
-    (define-key map "m" #'hn-load-more-stories)
-    (define-key map "n" #'next-line)
-    (define-key map "p" #'previous-line)
-    (define-key map "l" #'hn-list-new)
-    (define-key map "L" #'hn-list-all)
-    (define-key map "o" #'hn-browse-article-current)
-    (define-key map (kbd "RET") #'hn-browse-comment-current)
-    map)
-  "Keymap used in hn buffer.")
 
 
 (defun hn-ensure-major-mode ()
