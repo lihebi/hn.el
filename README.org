@@ -4,7 +4,7 @@
 * Introduction
 
 Lincoln de Sousa has
-[[clarete/hackernews.el][https://github.com/clarete/hackernews.el]].
+[[https://github.com/clarete/hackernews.el][clarete/hackernews.el]].
 It supports list stories, open link in internal/external browser, mark
 as read. However, that is hardly any improvement from reading
 hackernews on web.
