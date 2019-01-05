@@ -23,7 +23,7 @@ Screenshot:
                        :repo "lihebi/hn-master.el"))
 #+END_SRC
 
-Run commend =hn-master= to bring the buffer. Shortcuts:
+Run command =hn-master= to bring the buffer. Shortcuts:
 
 - =n=: next line
 - =p=: previous line
