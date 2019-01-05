@@ -9,8 +9,35 @@ open link in internal/external browser, mark as read. However, that is
 hardly any improvement from reading hackernews on web.
 
 This client is designed to offer a premium reading experience.
+
+Screenshot:
+
+![screenshot](screenshot.png)
+
+
+* Install and Usage
+
+#+BEGIN_SRC elisp
+(use-package hn-master
+  :straight (hn-master :type git :host github
+                       :repo "lihebi/hn-master.el"))
+#+END_SRC
+
+Run commend =hn-master= to bring the buffer. Shortcuts:
+
+- =n=: next line
+- =p=: previous line
+- =Enter=: view comments in comment buffer
+- =o=: open article in browser
+- =m=: load more
+- =l=: list only unread articles
+- =L=: list all articles
+- =g=: refresh
+
+* Detailed Feature List
+
+
 ** TODO save read history
-** TODO load more
 
 ** TODO Subscribe for update for easy tracking
 When I read a topic on HN, I will only read the threads at that
