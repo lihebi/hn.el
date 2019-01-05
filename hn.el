@@ -1,11 +1,11 @@
-;;; hn-master.el --- A hacker news client. -*- lexical-binding: t; -*-
+;;; hn.el --- A hacker news client. -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2011 Free Software Foundation, Inc.
 
 ;; Author: Hebi Li <lihebi.com@gmail.com>
 ;; Version: 0.1
 ;; Keywords: Scholar
-;; URL: https://github.com/lihebi/hn-master.el
+;; URL: https://github.com/lihebi/hn.el
 
 ;;; Commentary:
 
@@ -20,41 +20,41 @@
 (require 'json)
 (require 'url)
 
-(define-derived-mode hn-master-mode special-mode "HN"
-  :group 'hn-master
+(define-derived-mode hn-mode special-mode "HN"
+  :group 'hn
   (setq truncate-lines t)
   (buffer-disable-undo))
 
-(define-derived-mode hn-master-comment-mode special-mode "HN-Comment"
-  :group 'hn-master
+(define-derived-mode hn-comment-mode special-mode "HN-Comment"
+  :group 'hn
   (setq truncate-lines t)
   (buffer-disable-undo))
 
 (defconst hn-api-prefix
   "https://hacker-news.firebaseio.com/v0")
 
-(defvar *hn-master-top-stories* ())
+(defvar *hn-top-stories* ())
 (defun hn-retrieve-top-stories ()
   "Get a list of top stories."
-  (when (not *hn-master-top-stories*)
-    (setq *hn-master-top-stories*
+  (when (not *hn-top-stories*)
+    (setq *hn-top-stories*
           (let ((top-story-url (concat hn-api-prefix "/topstories.json")))
             (json-read-url top-story-url))))
-  *hn-master-top-stories*)
+  *hn-top-stories*)
 
 
-(defvar *hn-master-item-table* (make-hash-table)
+(defvar *hn-item-table* (make-hash-table)
   "A hash map from id to item.")
-(defvar *hn-master-user-table* (make-hash-table)
+(defvar *hn-user-table* (make-hash-table)
   "A hash map from id to item.")
-(defvar *hn-master-visited* ()
+(defvar *hn-visited* ()
   "A set of visited ids. FIXME Use hash?")
 
-(defcustom hn-master-history-file
-  (locate-user-emacs-file "hn-master-history.el")
+(defcustom hn-history-file
+  (locate-user-emacs-file "hn-history.el")
   "Name of file used to remember which links have been visited.
 When nil, visited links are not persisted across sessions."
-  :group 'hn-master
+  :group 'hn
   :type '(choice file (const :tag "None" nil)))
 
 (defun json-read-url (url)
@@ -65,44 +65,44 @@ When nil, visited links are not persisted across sessions."
     ;;   (json-read))
     (json-read)))
 
-(defun hn-master-retrieve-item (id)
-  (when (not (gethash id *hn-master-item-table*))
+(defun hn-retrieve-item (id)
+  (when (not (gethash id *hn-item-table*))
     (let ((item-url
            (format (concat hn-api-prefix "/item/%s.json") id)))
-      (puthash id (json-read-url item-url) *hn-master-item-table*)))
-  (gethash id *hn-master-item-table*))
+      (puthash id (json-read-url item-url) *hn-item-table*)))
+  (gethash id *hn-item-table*))
 
-(defun hn-master-retrieve-user (id)
-  (when (not (gethash id *hn-master-user-table*))
+(defun hn-retrieve-user (id)
+  (when (not (gethash id *hn-user-table*))
     (let ((item-url
            (format (concat hn-api-prefix "/user/%s.json") id)))
-      (puthash id (json-read-url item-url) *hn-master-user-table*)))
-  (gethash id *hn-master-user-table*))
+      (puthash id (json-read-url item-url) *hn-user-table*)))
+  (gethash id *hn-user-table*))
 
-(defface hn-master-title
-  '((t :inherit hn-master-link))
+(defface hn-title
+  '((t :inherit hn-link))
   "Face used for links to stories."
-  :group 'hn-master)
+  :group 'hn)
 
-(defface hn-master-link
+(defface hn-link
   '((t :inherit link :underline nil))
   "Face used for links to stories."
-  :group 'hn-master)
+  :group 'hn)
 
-(defface hn-master-link-visited
+(defface hn-link-visited
   '((t :inherit link-visited :underline nil))
   "Face used for visited links to stories."
-  :group 'hn-master)
+  :group 'hn)
 
-(defface hn-master-comment-count
+(defface hn-comment-count
   '((t :foreground "dark red"))
   ""
-  :group 'hn-master)
+  :group 'hn)
 
-(defface hn-master-user
+(defface hn-user
   '((t :foreground "blue"))
   ""
-  :group 'hn-master)
+  :group 'hn)
 
 (defun browse-url-action (button)
   "Browse url when click BUTTON."
@@ -111,75 +111,75 @@ When nil, visited links are not persisted across sessions."
          (url (button-get button 'url))
          (inhibit-read-only t))
     ;; mark as read
-    (when (not (member id *hn-master-visited*))
-      (add-to-list '*hn-master-visited* id)
-      (button-put button 'type 'hn-master-button-visited))
+    (when (not (member id *hn-visited*))
+      (add-to-list '*hn-visited* id)
+      (button-put button 'type 'hn-button-visited))
     (browse-url url)))
 
 (defun get-current-article-button ()
   (next-button (line-beginning-position)))
 
-;; (add-to-list *hn-master-visited* 3)
+;; (add-to-list *hn-visited* 3)
 
-(define-button-type 'hn-master-title-button
+(define-button-type 'hn-title-button
   'action                  #'browse-url-action
-  'face                    'hn-master-link
+  'face                    'hn-link
   'follow-link             t)
 
-(define-button-type 'hn-master-comment-button
+(define-button-type 'hn-comment-button
   'action                  #'browse-url-action
-  'face                    'hn-master-comment-count
+  'face                    'hn-comment-count
   'follow-link             t)
 
-(define-button-type 'hn-master-button-visited
+(define-button-type 'hn-button-visited
   'action                  #'browse-url-action
-  'face                    'hn-master-link-visited
+  'face                    'hn-link-visited
   'follow-link             t)
 
-(define-button-type 'hn-master-user-button
+(define-button-type 'hn-user-button
   'action                  #'browse-url-action
-  'face                    'hn-master-user
+  'face                    'hn-user
   'follow-link             t)
 
 (defconst hackernews-site-item-format 
   "Format of Hacker News website item URLs.")
 
-(defvar hn-master-mode-map
+(defvar hn-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "g" #'hn-master-reload)
-    (define-key map "m" #'hn-master-load-more-stories)
+    (define-key map "g" #'hn-reload)
+    (define-key map "m" #'hn-load-more-stories)
     (define-key map "n" #'next-line)
     (define-key map "p" #'previous-line)
-    (define-key map "l" #'hn-master-list-new)
-    (define-key map "L" #'hn-master-list-all)
-    (define-key map "o" #'hn-master-browse-article-current)
-    (define-key map (kbd "RET") #'hn-master-browse-comment-current)
+    (define-key map "l" #'hn-list-new)
+    (define-key map "L" #'hn-list-all)
+    (define-key map "o" #'hn-browse-article-current)
+    (define-key map (kbd "RET") #'hn-browse-comment-current)
     map)
-  "Keymap used in hn-master buffer.")
+  "Keymap used in hn buffer.")
 
 
-(defun hn-master-ensure-major-mode ()
+(defun hn-ensure-major-mode ()
   "Barf if current buffer is not derived from `hackernews-mode'."
-  (unless (derived-mode-p #'hn-master-mode)
-    (signal 'hn-master-error '("Not a hackernews buffer"))))
+  (unless (derived-mode-p #'hn-mode)
+    (signal 'hn-error '("Not a hackernews buffer"))))
 
-(defun hn-master-load-more-stories ()
+(defun hn-load-more-stories ()
   "Increase number; retrieve and display."
   (interactive)
-  (setq *hn-master-num-stories* (+ *hn-master-num-stories* 20))
-  (hn-master-reload))
+  (setq *hn-num-stories* (+ *hn-num-stories* 20))
+  (hn-reload))
 
-(defvar *hn-master-list-all* t)
+(defvar *hn-list-all* t)
 
-(defun hn-master-list-all ()
+(defun hn-list-all ()
   (interactive)
-  (setq *hn-master-list-all* t)
-  (hn-master-reload))
+  (setq *hn-list-all* t)
+  (hn-reload))
 
-(defun hn-master-list-new ()
+(defun hn-list-new ()
   (interactive)
-  (setq *hn-master-list-all* nil)
-  (hn-master-reload))
+  (setq *hn-list-all* nil)
+  (hn-reload))
 
 (defun comment-url (id)
   (format "https://news.ycombinator.com/item?id=%s" id))
@@ -190,29 +190,29 @@ When nil, visited links are not persisted across sessions."
         (score (cdr (assoc 'score item)))
         (url (cdr (assoc 'url item)))
         (descendants  (cdr (assq 'descendants item))))
-    (when (or *hn-master-list-all*
-              (not (member id *hn-master-visited*)))
+    (when (or *hn-list-all*
+              (not (member id *hn-visited*)))
       (insert
        (format "%-7s %s %s\n"
                (propertize (format "[%s]" score))
                ;; these buttons can be clicked
                (make-text-button title nil
-                                 'type (if (member id *hn-master-visited*)
-                                           'hn-master-button-visited
-                                         'hn-master-title-button)
+                                 'type (if (member id *hn-visited*)
+                                           'hn-button-visited
+                                         'hn-title-button)
                                  'id id
                                  'help-echo url
                                  'url url)
                (make-text-button
                 (format "(%s comments)" descendants) nil
-                'type (if (member id *hn-master-visited*)
-                          'hn-master-button-visited
-                        'hn-master-comment-button)
+                'type (if (member id *hn-visited*)
+                          'hn-button-visited
+                        'hn-comment-button)
                 'id id
                 'help-echo url
                 'url (comment-url id)))))))
 
-(defvar *hn-master-num-stories* 20 "Number of stories")
+(defvar *hn-num-stories* 20 "Number of stories")
 
 (defun decode-html-entities (html)
   (let ((data (match-data)))
@@ -265,61 +265,61 @@ When nil, visited links are not persisted across sessions."
        (funcall
         wrapper-1 text))))))
 
-(defun hn-master-reload ()
+(defun hn-reload ()
   (interactive)
-  (hn-master-ensure-major-mode)
+  (hn-ensure-major-mode)
   (let ((pos (point))
         (winpos (window-start)))
     (save-excursion
       (let ((inhibit-read-only t))
         (erase-buffer)
-        (let ((items (mapcar #'hn-master-retrieve-item
+        (let ((items (mapcar #'hn-retrieve-item
                              (seq-take (hn-retrieve-top-stories)
-                                       *hn-master-num-stories*))))
+                                       *hn-num-stories*))))
           (mapc #'display-item items))))
     (set-window-start (selected-window) winpos)
     (goto-char pos)))
 
-(defun hn-master-browse-article-current ()
+(defun hn-browse-article-current ()
   "Browse current line article in browser."
   (interactive)
   (let* ((button (get-current-article-button)))
     (browse-url-action button)))
 
-(defun hn-master-browse-comment-current ()
+(defun hn-browse-comment-current ()
   "Open this thread in emacs."
   (interactive)
   (let* ((button (get-current-article-button))
          (id (button-get button 'id))
-         (item (hn-master-retrieve-item id))
+         (item (hn-retrieve-item id))
          (kids (cdr (assoc 'kids item))))
     ;; add to visited and reload
-    (add-to-list '*hn-master-visited* id)
-    (hn-master-reload)
+    (add-to-list '*hn-visited* id)
+    (hn-reload)
     ;; process comments
-    (let ((buffer (get-buffer-create "*hn-master-comment*")))
+    (let ((buffer (get-buffer-create "*hn-comment*")))
       (with-current-buffer buffer
         (let ((inhibit-read-only t))
           (erase-buffer)
-          (hn-master-comment-mode)
+          (hn-comment-mode)
           ;; add the current article
-          (display-item (hn-master-retrieve-item id))
+          (display-item (hn-retrieve-item id))
           (insert "\n\n")
           ;; comments
           (mapc (lambda (id)
-                  (hn-master-display-comment id 0))
+                  (hn-display-comment id 0))
                 kids)))
       ;; view comment
       (pop-to-buffer buffer)
       (goto-char (point-min)))))
 
-(defun hn-master-user-karma (user-id)
-  (let ((user (hn-master-retrieve-user user-id)))
+(defun hn-user-karma (user-id)
+  (let ((user (hn-retrieve-user user-id)))
     (cdr (assoc 'karma user))))
 
-(defun hn-master-display-comment (id depth)
+(defun hn-display-comment (id depth)
   "Recursively display comments."
-  (let* ((item (hn-master-retrieve-item id))
+  (let* ((item (hn-retrieve-item id))
          (id (cdr (assoc 'id item)))
          (url (cdr (assoc 'url item)))
          (text (cdr (assoc 'text item)))
@@ -332,8 +332,8 @@ When nil, visited links are not persisted across sessions."
          (pos (point))
          (indent (make-string (* depth 4) ? )))
     (let ((str (concat (make-text-button
-                        (format "[%s (%s)]" by (hn-master-user-karma by)) nil
-                        'type 'hn-master-user-button
+                        (format "[%s (%s)]" by (hn-user-karma by)) nil
+                        'type 'hn-user-button
                         'id by
                         ;; using item url, instead of user-url
                         ;; there is no score for a comment
@@ -351,22 +351,22 @@ When nil, visited links are not persisted across sessions."
       (fill-region pos (point))
       ;; get kids
       (mapc (lambda (kid)
-              (hn-master-display-comment kid (+ depth 1)))
+              (hn-display-comment kid (+ depth 1)))
             kids))))
 
 ;;;###autoload
-(defun hn-master ()
-  "Load hn-master interface."
+(defun hn ()
+  "Load hn interface."
   (interactive)
-  (let ((buffer (get-buffer-create "*hn-master*")))
+  (let ((buffer (get-buffer-create "*hn*")))
     (with-current-buffer buffer
       (let ((inhibit-read-only t))
         (erase-buffer))
-      (hn-master-mode)
-      (hn-master-reload))
+      (hn-mode)
+      (hn-reload))
     ;; view comment
     (pop-to-buffer buffer)))
 
-(provide 'hn-master)
+(provide 'hn)
 
-;;; hn-master.el ends here
+;;; hn.el ends here
