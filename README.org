@@ -18,21 +18,21 @@ Screenshot:
 * Install and Usage
 
 #+BEGIN_SRC elisp
-(use-package hn-master
-  :straight (hn-master :type git :host github
-                       :repo "lihebi/hn-master.el"))
+(use-package hn
+  :straight (hn :type git :host github
+                :repo "lihebi/hn.el"))
 #+END_SRC
 
 Run command =hn-master= to bring the buffer. Shortcuts:
 
-- =n=: next line
-- =p=: previous line
 - =Enter=: view comments in comment buffer
-- =o=: open article in browser
 - =m=: load more
 - =l=: list only unread articles
 - =L=: list all articles
 - =g=: refresh
+- =c=: read comment in comment viewer
+- push buttons: click the title or comment to browse it using external
+  link.
 
 * Detailed Feature List
 

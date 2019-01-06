@@ -68,13 +68,6 @@
                     by))
          (pos (point))
          (indent (make-string (* depth 4) ? )))
-    (make-text-button (format "[%s (%s)]" by (hn-user-karma by)) nil
-                      'type 'hn-user-button
-                      'id by
-                      ;; using item url, instead of user-url
-                      ;; there is no score for a comment
-                      'help-echo url
-                      'url url)
     (let ((str (concat (make-text-button
                         (format "[%s (%s)]" by (hn-user-karma by)) nil
                         'type 'hn-user-button

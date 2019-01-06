@@ -44,6 +44,27 @@
 (defface hn-user
   '((t :foreground "blue")) "" :group 'hn)
 
+(defcustom hn-hl-users '()
+  "A list of users to follow. Articles or comments by these users
+  are highlighted."
+  :group 'hn
+  :type '(list string))
+
+(defcustom hn-hl-keywords '()
+  "A list of keywords you care about. Articles and comments
+  containing these keywords are highlighted."
+  :group 'hn
+  :type '(list string))
+
+(defcustom hn-history-file
+  (locate-user-emacs-file "hn-history.el")
+  "Name of file used to remember which links have been visited.
+When nil, visited links are not persisted across sessions."
+  :group 'hn
+  :type '(choice file (const :tag "None" nil)))
+
+
+
 (defvar *hn-top-stories* ())
 (defvar *hn-item-table* (make-hash-table)
   "A hash map from id to item.")
@@ -65,13 +86,6 @@
   (hn))
 
 
-
-(defcustom hn-history-file
-  (locate-user-emacs-file "hn-history.el")
-  "Name of file used to remember which links have been visited.
-When nil, visited links are not persisted across sessions."
-  :group 'hn
-  :type '(choice file (const :tag "None" nil)))
 
 (defun hn-load-more-stories ()
   "Increase number; retrieve and display."
@@ -99,6 +113,7 @@ When nil, visited links are not persisted across sessions."
     (define-key map "l" #'hn-list-new)
     (define-key map "L" #'hn-list-all)
     (define-key map "r" #'hn-reset)
+    (define-key map "c" #'hn-browse-current-comment)
     (define-key map (kbd "RET") #'hn-browse-current-comment)
     map)
   "Keymap used in hn buffer.")
@@ -166,33 +181,51 @@ When nil, visited links are not persisted across sessions."
   (unless (derived-mode-p #'hn-mode)
     (signal 'hn-error '("Not a HN buffer"))))
 
+(defun display-header ()
+  (insert (format "%-5s %-7s %-20s %s\n"
+                  "Score"
+                  (propertize "Comment" 'face 'hn-comment-count)
+                  (propertize "User" 'face 'hn-user)
+                  (propertize "Title" 'face 'hn-title))
+          (make-string 80 ?-)
+          "\n"))
+
 (defun display-item (item)
   (let ((id (cdr (assoc 'id item)))
         (title (cdr (assoc 'title item)))
         (score (cdr (assoc 'score item)))
         (url (cdr (assoc 'url item)))
+        (by (cdr (assoc 'by item)))
         (descendants  (cdr (assq 'descendants item))))
     (when (or *hn-list-all*
               (not (member id *hn-visited*)))
       (insert
-       (format "%-7s %s %s\n"
-               (propertize (format "[%s]" score))
+       (format "%-5s %-7s %-20s %s\n"
+               (propertize (format "%s" score))
                ;; these buttons can be clicked
+               (make-text-button
+                (format "%s" descendants) nil
+                'type (if (member id *hn-visited*)
+                          'hn-comment-visited
+                        'hn-comment-button)
+                'id id
+                'help-echo (hn--comment-web-url id)
+                'url (hn--comment-web-url id))
+               (make-text-button
+                (format "%s (%s)" by (hn-user-karma by)) nil
+                'type 'hn-user-button
+                'id by
+                ;; using item url, instead of user-url
+                ;; there is no score for a comment
+                'help-echo url
+                'url url)
                (make-text-button title nil
                                  'type (if (member id *hn-visited*)
                                            'hn-title-visited
                                          'hn-title-button)
                                  'id id
                                  'help-echo url
-                                 'url url)
-               (make-text-button
-                (format "(%s comments)" descendants) nil
-                'type (if (member id *hn-visited*)
-                          'hn-comment-visited
-                        'hn-comment-button)
-                'id id
-                'help-echo (hn--comment-web-url id)
-                'url (hn--comment-web-url id)))))))
+                                 'url url))))))
 
 (defun hn-retrieve-top-stories ()
   "Get a list of top stories."
@@ -210,6 +243,7 @@ When nil, visited links are not persisted across sessions."
     (save-excursion
       (let ((inhibit-read-only t))
         (erase-buffer)
+        (display-header)
         (let ((items (mapcar #'hn-retrieve-item
                              (seq-take (hn-retrieve-top-stories)
                                        *hn-num-stories*))))
