@@ -39,6 +39,7 @@
         (let ((inhibit-read-only t))
           (erase-buffer)
           (hn-comment-mode)
+          (display-header)
           ;; add the current article
           (display-item (hn-retrieve-item id))
           (insert "\n\n")
@@ -62,10 +63,7 @@
          (text (cdr (assoc 'text item)))
          (kids (cdr (assoc 'kids item)))
          (by (cdr (assoc 'by item)))
-         (user-url (format
-                    ;; "https://hacker-news.firebaseio.com/v0/user/%s.json?"
-                    "https://news.ycombinator.com/user?id=%s"
-                    by))
+         (user-url (format "https://news.ycombinator.com/user?id=%s" by))
          (pos (point))
          (indent (make-string (* depth 4) ? )))
     (let ((str (concat (make-text-button
@@ -74,8 +72,8 @@
                         'id by
                         ;; using item url, instead of user-url
                         ;; there is no score for a comment
-                        'help-echo url
-                        'url url)
+                        'help-echo user-url
+                        'url user-url)
                        " "
                        (html-wrapper text))))
       (insert indent

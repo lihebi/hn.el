@@ -25,16 +25,26 @@ Screenshot:
 
 Run command =hn-master= to bring the buffer. Shortcuts:
 
-- =Enter=: view comments in comment buffer
-- =m=: load more
-- =l=: list only unread articles
-- =L=: list all articles
-- =g=: refresh
-- =c=: read comment in comment viewer
-- push buttons: click the title or comment to browse it using external
-  link.
+- =m= :: load more
+- =l= :: list only unread articles
+- =L= :: list all articles
+- =g= :: refresh
+- =G= :: hard refresh. By default, the top stories list and items
+         (stories and comments) are cached to avoid network
+         traffic. Hard refresh will empty the cache, so that you will
+         see new posts and new comments.
+- =c= :: read comment in comment viewer
 
-* Detailed Feature List
+- Push button semantic :: the title, comment and user fields are
+     buttons. Click the buttons will open external browser for the
+     article, the hackernews comment page, and the user profile page.
+
+- ENTER key :: There is also a special semantic for ENTER key.  ENTER
+               on the buttons will trigger push-button event. ENTER on
+               other space will open comment viewer for current
+               article.
+
+* Detailed Feature List (TODOs)
 
 ** TODO Subscribe for update for easy tracking
 When I read a topic on HN, I will only read the threads at that

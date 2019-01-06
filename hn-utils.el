@@ -54,12 +54,14 @@
 
 (defun hn-retrieve-user (id)
   (when (not (gethash id *hn-user-table*))
-    (let ((item-url
-           (format (concat hn-api-prefix "/user/%s.json") id)))
-      (puthash id (json-read-url item-url) *hn-user-table*)))
+    (let* ((item-url
+            (format (concat hn-api-prefix "/user/%s.json") id))
+           (item (json-read-url item-url))
+           ;; I only care about id and karma for now
+           (simple-item (list (assoc 'id item)
+                              (assoc 'karma item))))
+      (puthash id simple-item *hn-user-table*)))
   (gethash id *hn-user-table*))
-
-
 
 (defun html-wrapper (text)
   "Special treatment of html tags and entities."
@@ -95,6 +97,23 @@
          wrapper-2
          (funcall
           wrapper-1 text)))))))
+
+(defun hash-to-list (hash-table)
+  "Return a list that represent the HASH-TABLE
+Each element is a list: (list key value)."
+  (let (result)
+    (maphash
+     (lambda (k v)
+       (push (list k v) result))
+     hash-table)
+    result))
+
+(defun list-to-hash (hash-list)
+  (let ((res (make-hash-table :test 'equal)))
+    (mapc (lambda (v)
+            (puthash (car v) (cadr v) res))
+          hash-list)
+    res))
 
 (provide 'hn-utils)
 
