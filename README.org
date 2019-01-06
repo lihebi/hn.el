@@ -36,9 +36,6 @@ Run command =hn-master= to bring the buffer. Shortcuts:
 
 * Detailed Feature List
 
-
-** TODO save read history
-
 ** TODO Subscribe for update for easy tracking
 When I read a topic on HN, I will only read the threads at that
 time. I'll probably not going to read any updates to the thread

@@ -147,30 +147,42 @@ When nil, visited links are not persisted across sessions."
   'face                    'hn-user
   'follow-link             t)
 
+(defun hn--load-history ()
+  (when (not (file-exists-p hn-history-file))
+    (hn--save-history))
+  (setq *hn-visited* (with-temp-buffer
+                       (insert-file-contents hn-history-file)
+                       (read (current-buffer)))))
+
+(defun hn--save-history ()
+  (with-temp-file hn-history-file
+      (prin1 *hn-visited* (current-buffer))))
+
+(defun hn-mark-as-read (id)
+  (add-to-list '*hn-visited* id)
+  (hn--save-history)
+  (hn-reload))
+
 (defun browse-url-action (button)
   "Browse url when click BUTTON."
   (let* ((id    (button-get button 'id))
          (type  (button-type button))
          (url (button-get button 'url))
          (inhibit-read-only t))
-    ;; mark as read
-    (add-to-list '*hn-visited* id)
-    (hn-reload)
+    (hn-mark-as-read)
     (browse-url url)))
 
 (defun browse-comment-action (button)
   (interactive)
   (let ((id (button-get button 'id)))
-    (add-to-list '*hn-visited* id)
-    (hn-reload)
+    (hn-mark-as-read)
     (hn-comment id)))
 
 (defun hn-browse-current-comment ()
   (interactive)
   (let* ((button (get-current-article-button))
          (id (button-get button 'id)))
-    (add-to-list '*hn-visited* id)
-    (hn-reload)
+    (hn-mark-as-read)
     (hn-comment id)))
 
 (defun get-current-article-button ()
@@ -260,6 +272,7 @@ When nil, visited links are not persisted across sessions."
       (let ((inhibit-read-only t))
         (erase-buffer))
       (hn-mode)
+      (hn--load-history)
       (hn-reload))
     ;; view comment
     (pop-to-buffer buffer)))
