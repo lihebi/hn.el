@@ -20,8 +20,15 @@ Screenshot:
 
 #+BEGIN_SRC elisp
 (use-package hn
+  ;; :disabled
   :straight (hn :type git :host github
-                :repo "lihebi/hn.el"))
+                :repo "lihebi/hn.el")
+  :config
+  (setq hn-hl-users '("okanesen" "wilsonfiifi"))
+  (setq hn-hl-keywords '("lisp" "linux"
+                         "Show HN"
+                         "\\bML\\b" "\\bAI\\b"
+                         "Tensorflow")))
 #+END_SRC
 
 Run command =hn-master= to bring the buffer. Shortcuts:

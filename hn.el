@@ -51,8 +51,8 @@
   :type '(list string))
 
 (defcustom hn-hl-keywords '()
-  "A list of keywords you care about. Articles and comments
-  containing these keywords are highlighted."
+  "A list of keywords regexp you care about. Articles and
+  comments containing these keywords are highlighted."
   :group 'hn
   :type '(list string))
 
@@ -231,6 +231,26 @@ When nil, visited links are not persisted across sessions."
           (make-string 80 ?-)
           "\n"))
 
+(defun user-fontifier (user)
+  "Fontify user if USER in hn-hl-users."
+  (if (member user hn-hl-users)
+      (propertize user 'face 'my-face)
+    user))
+
+(defun title-fontifier (title)
+  (reduce (lambda (acc reg)
+            ;; the FIXEDCASE has to be t, i.e. do not adjust case
+            ;; automatically. Otherwise, if the string contains
+            ;; non-ASCII code, the propertization might fail. E.g.
+            ;; "Show HN: author markdeck – author", the dash is
+            ;; unicode 8211. Try to replace "Show" is not working.
+            (replace-regexp-in-string
+             reg (lambda (s)
+                   (propertize s 'face 'my-face))
+             acc t))
+          hn-hl-keywords
+          :initial-value title))
+
 (defun display-item (item)
   (let* ((id (cdr (assoc 'id item)))
          (title (cdr (assoc 'title item)))
@@ -254,14 +274,17 @@ When nil, visited links are not persisted across sessions."
                 'help-echo (hn--comment-web-url id)
                 'url (hn--comment-web-url id))
                (make-text-button
-                (format "%s (%s)" by (hn-user-karma by)) nil
+                (format "%s (%s)"
+                        (user-fontifier by)
+                        (hn-user-karma by))
+                nil
                 'type 'hn-user-button
                 'id by
                 ;; using item url, instead of user-url
                 ;; there is no score for a comment
                 'help-echo user-url
                 'url user-url)
-               (make-text-button title nil
+               (make-text-button (title-fontifier title) nil
                                  'type (if (member id *hn-visited*)
                                            'hn-title-visited
                                          'hn-title-button)
