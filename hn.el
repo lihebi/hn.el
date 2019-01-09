@@ -434,7 +434,7 @@ length is most variable."
         (let* ((item-ids (case *hn-list-type*
                            (all (seq-take (hn-retrieve-top-stories)
                                           *hn-num-stories*))
-                           (new (seq-filter (lambda (id) (member id *hn-visited*))
+                           (new (seq-filter (lambda (id) (not (member id *hn-visited*)))
                                             (seq-take (hn-retrieve-top-stories)
                                                       *hn-num-stories*)))
                            (starred *hn-starred*)
