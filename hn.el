@@ -189,8 +189,13 @@ When nil, visited links are not persisted across sessions."
 
 (defun browse-url-and-mark-action (button)
   "Browse url when click BUTTON."
-  (hn-mark-as-read (button-get button 'id))
-  (browse-url (button-get button 'url)))
+  (let ((id (button-get button 'id))
+        (url (button-get button 'url)))
+    ;; CAUTION: after reload, the button is not there anymore, so
+    ;; button-get must be called before hn-mark-as-read (which calls
+    ;; hn-reload)
+    (hn-mark-as-read id)
+    (browse-url url)))
 
 (defun browse-comment-action (button)
   (interactive)
