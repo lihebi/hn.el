@@ -44,6 +44,12 @@
 (defface hn-user
   '((t :foreground "blue")) "" :group 'hn)
 
+(defface gold-on-white
+  '((t :foreground "dark orange")) "" :group 'hn)
+
+(defface red-on-white
+  '((t :foreground "red")) "" :group 'hn)
+
 (defcustom hn-hl-users '()
   "A list of users to follow. Articles or comments by these users
   are highlighted."
@@ -72,7 +78,11 @@ When nil, visited links are not persisted across sessions."
 (defvar *hn-visited* ()
   "A set of visited ids. FIXME Use hash?")
 (defvar *hn-num-stories* 20 "Number of stories")
-(defvar *hn-list-all* t)
+
+;; possible values:
+;; 'all, 'new, 'starred
+(defvar *hn-list-type* 'all)
+(defvar *hn-starred* '())
 
 
 (defun hn-load-more-stories ()
@@ -83,18 +93,41 @@ When nil, visited links are not persisted across sessions."
 
 (defun hn-list-all ()
   (interactive)
-  (setq *hn-list-all* t)
+  (setq *hn-list-type* 'all)
   (hn-reload))
 
 (defun hn-list-new ()
   (interactive)
-  (setq *hn-list-all* nil)
+  (setq *hn-list-type* 'new)
+  (hn-reload))
+
+(defun hn-list-starred ()
+  "List only starred articles."
+  (interactive)
+  (setq *hn-list-type* 'starred)
+  (hn-reload))
+
+(defun hn-list-cycle ()
+  (interactive)
+  (setq *hn-list-type*
+        (case *hn-list-type*
+          (all (hn-new-mode)
+               'new)
+          (new (hn-starred-mode)
+               'starred)
+          (starred (hn-all-mode)
+                   'all)
+          (t (error "hn-list-type error"))))
   (hn-reload))
 
 (defun hn--save-visited ()
   (hn--save-to-file *hn-visited* "hn-visited.el"))
 (defun hn--load-visited ()
   (setq *hn-visited* (hn--load-from-file "hn-visited.el")))
+(defun hn--save-starred ()
+  (hn--save-to-file *hn-starred* "hn-starred.el"))
+(defun hn--load-starred ()
+  (setq *hn-starred* (hn--load-from-file "hn-starred.el")))
 
 (defvar *hn-user-table-saved-size* 0)
 (defun hn--save-user-table ()
@@ -109,6 +142,8 @@ When nil, visited links are not persisted across sessions."
     (make-directory hn-history-dir))
   (when (not (file-exists-p (concat hn-history-dir "/hn-visited.el")))
     (hn--save-visited))
+  (when (not (file-exists-p (concat hn-history-dir "/hn-starred.el")))
+    (hn--save-starred))
   (when (not (file-exists-p (concat hn-history-dir "/hn-user-table.el")))
     (hn--save-user-table)))
 
@@ -125,12 +160,14 @@ When nil, visited links are not persisted across sessions."
   "Save all information: history, user table, etc."
   (ensure-history-dir)
   (hn--save-visited)
+  (hn--save-starred)
   (hn--save-user-table))
 
 (defun hn--load ()
   "Load all info."
   (ensure-history-dir)
   (hn--load-visited)
+  (hn--load-starred)
   (hn--load-user-table))
 
 
@@ -141,10 +178,13 @@ When nil, visited links are not persisted across sessions."
     (define-key map "m" #'hn-load-more-stories)
     (define-key map "n" #'next-line)
     (define-key map "p" #'previous-line)
-    (define-key map "l" #'hn-list-new)
-    (define-key map "L" #'hn-list-all)
+    ;; (define-key map (kbd "ln") #'hn-list-new)
+    ;; (define-key map (kbd "la") #'hn-list-all)
+    ;; (define-key map (kbd "ls") #'hn-list-starred)
+    (define-key map "l" #'hn-list-cycle)
     (define-key map "c" #'hn-browse-current-comment)
     (define-key map "u" #'hn-toggle-mark-as-read)
+    (define-key map "s" #'hn-toggle-star)
     (define-key map (kbd "RET") #'hn-browse-current-comment)
     map)
   "Keymap used in hn buffer.")
@@ -153,6 +193,13 @@ When nil, visited links are not persisted across sessions."
   :group 'hn
   (setq truncate-lines t)
   (buffer-disable-undo))
+
+(define-derived-mode hn-all-mode hn-mode "HN-ALL"
+  :group 'hn)
+(define-derived-mode hn-starred-mode hn-mode "HN-STARRED"
+  :group 'hn)
+(define-derived-mode hn-new-mode hn-mode "HN-NEW"
+  :group 'hn)
 
 ;; FIXME duplicate
 (define-button-type 'hn-title-button
@@ -203,6 +250,16 @@ When nil, visited links are not persisted across sessions."
         (hn-mark-as-unread id)
       (hn-mark-as-read id))))
 
+(defun hn-toggle-star ()
+  (interactive)
+  (let* ((button (get-current-article-button))
+         (id (button-get button 'id)))
+    (if (member id *hn-starred*)
+        (setq *hn-starred* (remove id *hn-starred*))
+      (add-to-list '*hn-starred* id))
+    (hn--save-starred)
+    (hn-reload)))
+
 (defun browse-url-action (button)
   "Browse url when click BUTTON."
   (browse-url (button-get button 'url)))
@@ -239,7 +296,8 @@ When nil, visited links are not persisted across sessions."
     (signal 'hn-error '("Not a HN buffer"))))
 
 (defun display-header ()
-  (insert (format "%-10s %-5s %-7s %-20s %s\n"
+  (insert (format "%-5s %-10s %-5s %-7s %-20s %s\n"
+                  "Star"
                   "ID"
                   "Score"
                   (propertize "Comment" 'face 'hn-comment-count)
@@ -255,7 +313,7 @@ When nil, visited links are not persisted across sessions."
 (defun user-fontifier (user)
   "Fontify user if USER in hn-hl-users."
   (if (member user hn-hl-users)
-      (propertize user 'face 'my-face)
+      (propertize user 'face 'red-on-white)
     user))
 
 (defun title-fontifier (title)
@@ -267,7 +325,7 @@ When nil, visited links are not persisted across sessions."
             ;; unicode 8211. Try to replace "Show" is not working.
             (replace-regexp-in-string
              reg (lambda (s)
-                   (propertize s 'face 'my-face))
+                   (propertize s 'face 'red-on-white))
              acc t))
           hn-hl-keywords
           :initial-value title))
@@ -280,44 +338,47 @@ When nil, visited links are not persisted across sessions."
          (by (cdr (assoc 'by item)))
          (user-url (format "https://news.ycombinator.com/user?id=%s" by))
          (descendants  (cdr (assq 'descendants item))))
-    (when (or *hn-list-all*
-              (not (member id *hn-visited*)))
-      (insert
-       (format "%-10s %-5s %-7s %-20s %s\n"
-               (make-text-button
-                (format "%s" id) nil
-                'type 'hn-debug-button
-                'id id
-                'help-echo (format (concat hn-api-prefix "/item/%s.json") id)
-                'url (format (concat hn-api-prefix "/item/%s.json") id))
-               (format "%s" score)
-               ;; these buttons can be clicked
-               (make-text-button
-                (format "%s" (or descendants 0)) nil
-                'type (if (member id *hn-visited*)
-                          'hn-comment-visited
-                        'hn-comment-button)
-                'id id
-                'help-echo (hn--comment-web-url id)
-                'url (hn--comment-web-url id))
-               (make-text-button
-                (format "%s (%s)"
-                        (user-fontifier by)
-                        (hn-user-karma by))
-                nil
-                'type 'hn-user-button
-                'id by
-                ;; using item url, instead of user-url
-                ;; there is no score for a comment
-                'help-echo user-url
-                'url user-url)
-               (make-text-button (title-fontifier title) nil
-                                 'type (if (member id *hn-visited*)
-                                           'hn-title-visited
-                                         'hn-title-button)
-                                 'id id
-                                 'help-echo url
-                                 'url url))))))
+    (insert
+     (format "%-5s %-10s %-5s %-7s %-20s %s\n"
+             (propertize
+              (if (member id *hn-starred*)
+                  "Y" " ")
+              'face
+              'gold-on-white)
+             (make-text-button
+              (format "%s" id) nil
+              'type 'hn-debug-button
+              'id id
+              'help-echo (format (concat hn-api-prefix "/item/%s.json") id)
+              'url (format (concat hn-api-prefix "/item/%s.json") id))
+             (format "%s" score)
+             ;; these buttons can be clicked
+             (make-text-button
+              (format "%s" (or descendants 0)) nil
+              'type (if (member id *hn-visited*)
+                        'hn-comment-visited
+                      'hn-comment-button)
+              'id id
+              'help-echo (hn--comment-web-url id)
+              'url (hn--comment-web-url id))
+             (make-text-button
+              (format "%s (%s)"
+                      (user-fontifier by)
+                      (hn-user-karma by))
+              nil
+              'type 'hn-user-button
+              'id by
+              ;; using item url, instead of user-url
+              ;; there is no score for a comment
+              'help-echo user-url
+              'url user-url)
+             (make-text-button (title-fontifier title) nil
+                               'type (if (member id *hn-visited*)
+                                         'hn-title-visited
+                                       'hn-title-button)
+                               'id id
+                               'help-echo url
+                               'url url)))))
 
 (defun hn-retrieve-top-stories ()
   "Get a list of top stories."
@@ -339,9 +400,15 @@ When nil, visited links are not persisted across sessions."
       (let ((inhibit-read-only t))
         (erase-buffer)
         (display-header)
-        (let ((items (mapcar #'hn-retrieve-item
-                             (seq-take (hn-retrieve-top-stories)
-                                       *hn-num-stories*))))
+        (let* ((item-ids (case *hn-list-type*
+                           (all (seq-take (hn-retrieve-top-stories)
+                                          *hn-num-stories*))
+                           (new (seq-filter (lambda (id) (member id *hn-visited*))
+                                            (seq-take (hn-retrieve-top-stories)
+                                                      *hn-num-stories*)))
+                           (starred *hn-starred*)
+                           (t (error "Error on *hn-list-type*"))))
+               (items (mapcar #'hn-retrieve-item item-ids)))
           (mapc #'display-item items))))
     (set-window-start (selected-window) winpos)
     (goto-char pos)))
@@ -364,7 +431,7 @@ When nil, visited links are not persisted across sessions."
     (with-current-buffer buffer
       (let ((inhibit-read-only t))
         (erase-buffer))
-      (hn-mode)
+      (hn-all-mode)
       (hn--load)
       (hn-reload))
     ;; view comment

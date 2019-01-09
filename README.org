@@ -34,15 +34,17 @@ Screenshot:
 Run command =hn-master= to bring the buffer. Shortcuts:
 
 - =m= :: load more
-- =l= :: list only unread articles
-- =L= :: list all articles
+- =l= :: cycle through listing mode. Available list mode: all, new,
+         starred. The current mode is displayed in the mode line,
+         named HN-ALL, HN-NEW, HN-STARRED respectively.
+- =s= :: toggle star of an article
+- =u= :: toggle mark as read/unread
 - =g= :: refresh
 - =G= :: hard refresh. By default, the top stories list and items
          (stories and comments) are cached to avoid network
          traffic. Hard refresh will empty the cache, so that you will
          see new posts and new comments.
 - =c= :: read comment in comment viewer
-- =u= :: toggle mark as read/unread
 
 - Push button semantic :: the title, comment and user fields are
      buttons. Click the buttons will open external browser for the
@@ -52,6 +54,9 @@ Run command =hn-master= to bring the buffer. Shortcuts:
                on the buttons will trigger push-button event. ENTER on
                other space will open comment viewer for current
                article.
+
+The history files are saved to =~/.emacs.d/hn-history/xxx.el=. You can
+keep a git repo to track your reading history.
 
 * Detailed Feature List (TODOs)
 
