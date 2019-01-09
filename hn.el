@@ -144,6 +144,7 @@ When nil, visited links are not persisted across sessions."
     (define-key map "l" #'hn-list-new)
     (define-key map "L" #'hn-list-all)
     (define-key map "c" #'hn-browse-current-comment)
+    (define-key map "u" #'hn-toggle-mark-as-read)
     (define-key map (kbd "RET") #'hn-browse-current-comment)
     map)
   "Keymap used in hn buffer.")
@@ -188,6 +189,19 @@ When nil, visited links are not persisted across sessions."
   (add-to-list '*hn-visited* id)
   (hn--save-visited)
   (hn-reload))
+
+(defun hn-mark-as-unread (id)
+  (setq *hn-visited* (remove id *hn-visited*))
+  (hn--save-visited)
+  (hn-reload))
+
+(defun hn-toggle-mark-as-read ()
+  (interactive)
+  (let* ((button (get-current-article-button))
+         (id (button-get button 'id)))
+    (if (member id *hn-visited*)
+        (hn-mark-as-unread id)
+      (hn-mark-as-read id))))
 
 (defun browse-url-action (button)
   "Browse url when click BUTTON."

@@ -42,6 +42,7 @@ Run command =hn-master= to bring the buffer. Shortcuts:
          traffic. Hard refresh will empty the cache, so that you will
          see new posts and new comments.
 - =c= :: read comment in comment viewer
+- =u= :: toggle mark as read/unread
 
 - Push button semantic :: the title, comment and user fields are
      buttons. Click the buttons will open external browser for the
