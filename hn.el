@@ -158,6 +158,12 @@ When nil, visited links are not persisted across sessions."
   'action                  #'browse-url-and-mark-action
   'face                    'hn-link
   'follow-link             t)
+
+(define-button-type 'hn-debug-button
+  'action                  #'browse-url-action
+  'face                    'hn-link
+  'follow-link             t)
+
 (define-button-type 'hn-title-visited
   'action                  #'browse-url-action
   'face                    'hn-title-visited
@@ -219,7 +225,8 @@ When nil, visited links are not persisted across sessions."
     (signal 'hn-error '("Not a HN buffer"))))
 
 (defun display-header ()
-  (insert (format "%-5s %-7s %-20s %s\n"
+  (insert (format "%-10s %-5s %-7s %-20s %s\n"
+                  "ID"
                   "Score"
                   (propertize "Comment" 'face 'hn-comment-count)
                   (propertize "User (Karma)" 'face 'hn-user)
@@ -262,8 +269,14 @@ When nil, visited links are not persisted across sessions."
     (when (or *hn-list-all*
               (not (member id *hn-visited*)))
       (insert
-       (format "%-5s %-7s %-20s %s\n"
-               (propertize (format "%s" score))
+       (format "%-10s %-5s %-7s %-20s %s\n"
+               (make-text-button
+                (format "%s" id) nil
+                'type 'hn-debug-button
+                'id id
+                'help-echo (format (concat hn-api-prefix "/item/%s.json") id)
+                'url (format (concat hn-api-prefix "/item/%s.json") id))
+               (format "%s" score)
                ;; these buttons can be clicked
                (make-text-button
                 (format "%s" (or descendants 0)) nil
