@@ -28,7 +28,9 @@ Screenshot:
   (setq hn-hl-keywords '("lisp" "linux"
                          "Show HN"
                          "\\bML\\b" "\\bAI\\b"
-                         "Tensorflow")))
+                         "Tensorflow"))
+  (setq hn-fields '(star score comment user title)))
+
 #+END_SRC
 
 Run command =hn-master= to bring the buffer. Shortcuts:

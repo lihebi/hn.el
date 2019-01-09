@@ -69,6 +69,13 @@ When nil, visited links are not persisted across sessions."
   :group 'hn
   :type '(choice file (const :tag "None" nil)))
 
+(defcustom hn-fields
+  '(star score comment user title)
+  "Fields on article page. Title should be at the end because its
+length is most variable."
+  :group 'hn
+  :type '(list symbol))
+
 
 (defvar *hn-top-stories* ())
 (defvar *hn-item-table* (make-hash-table :test 'equal)
@@ -295,18 +302,35 @@ When nil, visited links are not persisted across sessions."
   (unless (derived-mode-p #'hn-mode)
     (signal 'hn-error '("Not a HN buffer"))))
 
+(defun hn--fields-to-format ()
+  "Field list to format string."
+  (concat (apply #'concat (mapcar (lambda (sym)
+                                  (case sym
+                                    (star "%-5s")
+                                    (id "%-10s")
+                                    (score "%-7s")
+                                    (comment "%-9s")
+                                    (user "%-20s")
+                                    (title "%s")
+                                    (t (error "Unsupported symbol in field"))))
+                                hn-fields)) "\n"))
+
+(defun hn--fields-to-headers ()
+  (mapcar (lambda (sym)
+            (case sym
+              (star "Star")
+              (id "ID")
+              (score "Score")
+              (comment (propertize "Comment" 'face 'hn-comment-count))
+              (user (propertize "User (Karma)" 'face 'hn-user))
+              (title (propertize "Title" 'face 'hn-title))
+              (t (error "Unsupported symbol in field"))))
+          hn-fields))
+
 (defun display-header ()
-  (insert (format "%-5s %-10s %-5s %-7s %-20s %s\n"
-                  "Star"
-                  "ID"
-                  "Score"
-                  (propertize "Comment" 'face 'hn-comment-count)
-                  (propertize "User (Karma)" 'face 'hn-user)
-                  (concat (propertize "Title" 'face 'hn-title)
-                          (format " (Stats: Read: %s, User Table: %s, Saved %s)"
-                                  (length *hn-visited*)
-                                  (hash-table-size *hn-user-table*)
-                                  *hn-user-table-saved-size*)))
+  "Insert headers."
+  (insert (apply #'format (hn--fields-to-format)
+                 (hn--fields-to-headers))
           (make-string 80 ?-)
           "\n"))
 
@@ -330,7 +354,8 @@ When nil, visited links are not persisted across sessions."
           hn-hl-keywords
           :initial-value title))
 
-(defun display-item (item)
+(defun hn--fields-to-line (item)
+  "Construct field line."
   (let* ((id (cdr (assoc 'id item)))
          (title (cdr (assoc 'title item)))
          (score (cdr (assoc 'score item)))
@@ -338,47 +363,53 @@ When nil, visited links are not persisted across sessions."
          (by (cdr (assoc 'by item)))
          (user-url (format "https://news.ycombinator.com/user?id=%s" by))
          (descendants  (cdr (assq 'descendants item))))
-    (insert
-     (format "%-5s %-10s %-5s %-7s %-20s %s\n"
-             (propertize
-              (if (member id *hn-starred*)
-                  "Y" " ")
-              'face
-              'gold-on-white)
-             (make-text-button
-              (format "%s" id) nil
-              'type 'hn-debug-button
-              'id id
-              'help-echo (format (concat hn-api-prefix "/item/%s.json") id)
-              'url (format (concat hn-api-prefix "/item/%s.json") id))
-             (format "%s" score)
-             ;; these buttons can be clicked
-             (make-text-button
-              (format "%s" (or descendants 0)) nil
-              'type (if (member id *hn-visited*)
-                        'hn-comment-visited
-                      'hn-comment-button)
-              'id id
-              'help-echo (hn--comment-web-url id)
-              'url (hn--comment-web-url id))
-             (make-text-button
-              (format "%s (%s)"
-                      (user-fontifier by)
-                      (hn-user-karma by))
-              nil
-              'type 'hn-user-button
-              'id by
-              ;; using item url, instead of user-url
-              ;; there is no score for a comment
-              'help-echo user-url
-              'url user-url)
-             (make-text-button (title-fontifier title) nil
-                               'type (if (member id *hn-visited*)
-                                         'hn-title-visited
-                                       'hn-title-button)
-                               'id id
-                               'help-echo url
-                               'url url)))))
+    (mapcar (lambda (sym)
+              (case sym
+                (star (propertize
+                       (if (member id *hn-starred*)
+                           "Y" " ")
+                       'face
+                       'gold-on-white))
+                (id (make-text-button
+                     (format "%s" id) nil
+                     'type 'hn-debug-button
+                     'id id
+                     'help-echo (format (concat hn-api-prefix "/item/%s.json") id)
+                     'url (format (concat hn-api-prefix "/item/%s.json") id)))
+                (score (format "%s" score))
+                (comment (make-text-button
+                          (format "%s" (or descendants 0)) nil
+                          'type (if (member id *hn-visited*)
+                                    'hn-comment-visited
+                                  'hn-comment-button)
+                          'id id
+                          'help-echo (hn--comment-web-url id)
+                          'url (hn--comment-web-url id)))
+                (user (make-text-button
+                       (format "%s (%s)"
+                               (user-fontifier by)
+                               (hn-user-karma by))
+                       nil
+                       'type 'hn-user-button
+                       'id by
+                       ;; using item url, instead of user-url
+                       ;; there is no score for a comment
+                       'help-echo user-url
+                       'url user-url))
+                (title (make-text-button (title-fontifier title) nil
+                                         'type (if (member id *hn-visited*)
+                                                   'hn-title-visited
+                                                 'hn-title-button)
+                                         'id id
+                                         'help-echo url
+                                         'url url))
+                (t (error "Unsupported symbol in field"))))
+            hn-fields)))
+
+(defun display-item (item)
+  (insert
+   (apply #'format (hn--fields-to-format)
+          (hn--fields-to-line item))))
 
 (defun hn-retrieve-top-stories ()
   "Get a list of top stories."
