@@ -241,7 +241,7 @@ When nil, visited links are not persisted across sessions."
                (propertize (format "%s" score))
                ;; these buttons can be clicked
                (make-text-button
-                (format "%s" descendants) nil
+                (format "%s" (or descendants 0)) nil
                 'type (if (member id *hn-visited*)
                           'hn-comment-visited
                         'hn-comment-button)
