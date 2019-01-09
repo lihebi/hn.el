@@ -1,4 +1,4 @@
-#+TITLE: Another Hacker News Client
+#+TITLE: A HackerNews Client that Reads Comments
 
 
 * Introduction
@@ -9,7 +9,8 @@ It supports list stories, open link in internal/external browser, mark
 as read. However, that is hardly any improvement from reading
 hackernews on web.
 
-This client is designed to offer a premium reading experience.
+This client is designed to offer a premium reading experience,
+including reading comments.
 
 Screenshot:
 
