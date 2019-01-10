@@ -18,9 +18,13 @@ Screenshot:
 
 * Install and Usage
 
+Currently I'm not making it available on Melpa. But I recommand to use
+[[https://github.com/raxod502/straight.el][straight]] to install
+package directly from git repository. You can install and setup the
+package using this configuration:
+
 #+BEGIN_SRC elisp
 (use-package hn
-  ;; :disabled
   :straight (hn :type git :host github
                 :repo "lihebi/hn.el")
   :config
