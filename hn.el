@@ -136,6 +136,10 @@ length is most variable."
 (defun hn--load-starred ()
   (setq *hn-starred* (hn--load-from-file "hn-starred.el")))
 
+;; (pp *hn-user-table*)
+;; (pp *hn-starred*)
+;; (hn--save-user-table)
+
 (defvar *hn-user-table-saved-size* 0)
 (defun hn--save-user-table ()
   (hn--save-to-file (hash-to-list *hn-user-table*) "hn-user-table.el")
@@ -156,7 +160,7 @@ length is most variable."
 
 (defun hn--save-to-file (obj filename)
   (with-temp-file (concat hn-history-dir "/" filename)
-    (prin1 obj (current-buffer))))
+    (pp obj (current-buffer))))
 
 (defun hn--load-from-file (filename)
   (with-temp-buffer
@@ -451,7 +455,7 @@ length is most variable."
   (clrhash *hn-item-table*)
   ;; (clrhash *hn-user-table*)
   ;; (hash-table-size *hn-user-table*)
-  (setq *hn-num-stories* 20)
+  ;; (setq *hn-num-stories* 20)
   (hn-reload))
 
 ;;;###autoload
