@@ -75,7 +75,7 @@
                         'help-echo user-url
                         'url user-url)
                        " "
-                       (html-wrapper text))))
+                       (title-fontifier (html-wrapper (or text ""))))))
       (insert indent
               (replace-regexp-in-string
                "\n"
