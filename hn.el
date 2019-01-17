@@ -84,6 +84,8 @@ length is most variable."
   "A hash map from id to item.")
 (defvar *hn-visited* ()
   "A set of visited ids. FIXME Use hash?")
+(defvar *hn-visited-cache* ()
+  "Will clear after each `g' command.")
 (defvar *hn-num-stories* 20 "Number of stories")
 
 ;; possible values:
@@ -184,7 +186,7 @@ length is most variable."
 
 (defvar hn-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "g" #'hn-reload)
+    (define-key map "g" #'hn-reload-command)
     (define-key map "G" #'hn-hard-reload)
     (define-key map "m" #'hn-load-more-stories)
     (define-key map "n" #'next-line)
@@ -199,6 +201,11 @@ length is most variable."
     (define-key map (kbd "RET") #'hn-browse-current-comment)
     map)
   "Keymap used in hn buffer.")
+
+(defun hn-reload-command ()
+  (interactive)
+  (setq *hn-visited-cache* '())
+  (hn-reload))
 
 (define-derived-mode hn-mode special-mode "HN"
   :group 'hn
@@ -245,11 +252,13 @@ length is most variable."
 
 (defun hn-mark-as-read (id)
   (add-to-list '*hn-visited* id)
+  (add-to-list '*hn-visited-cache* id)
   (hn--save-visited)
   (hn-reload))
 
 (defun hn-mark-as-unread (id)
   (setq *hn-visited* (remove id *hn-visited*))
+  (setq *hn-visited-cache* (remove id *hn-visited-cache*))
   (hn--save-visited)
   (hn-reload))
 
@@ -438,7 +447,8 @@ length is most variable."
         (let* ((item-ids (case *hn-list-type*
                            (all (seq-take (hn-retrieve-top-stories)
                                           *hn-num-stories*))
-                           (new (seq-filter (lambda (id) (not (member id *hn-visited*)))
+                           (new (seq-filter (lambda (id) (or (not (member id *hn-visited*))
+                                                             (member id *hn-visited-cache*)))
                                             (seq-take (hn-retrieve-top-stories)
                                                       *hn-num-stories*)))
                            (starred *hn-starred*)
