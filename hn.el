@@ -321,6 +321,7 @@ length is most variable."
                                   (case sym
                                     (star "%-5s")
                                     (id "%-10s")
+                                    (time "%-10s")
                                     (score "%-7s")
                                     (comment "%-9s")
                                     (user "%-20s")
@@ -334,6 +335,7 @@ length is most variable."
               (star "Star")
               (id "ID")
               (score "Score")
+              (time "Time")
               (comment (propertize "Comment" 'face 'hn-comment-count))
               (user (propertize "User (Karma)" 'face 'hn-user))
               (title (propertize "Title" 'face 'hn-title))
@@ -374,6 +376,7 @@ length is most variable."
          (score (cdr (assoc 'score item)))
          (url (cdr (assoc 'url item)))
          (by (cdr (assoc 'by item)))
+         (time (cdr (assoc 'time item)))
          (user-url (format "https://news.ycombinator.com/user?id=%s" by))
          (descendants  (cdr (assq 'descendants item))))
     (mapcar (lambda (sym)
@@ -390,6 +393,7 @@ length is most variable."
                      'help-echo (format (concat hn-api-prefix "/item/%s.json") id)
                      'url (format (concat hn-api-prefix "/item/%s.json") id)))
                 (score (format "%s" score))
+                (time (format-time-string "%m/%d/%y" (seconds-to-time time)))
                 (comment (make-text-button
                           (format "%s" (or descendants 0)) nil
                           'type (if (member id *hn-visited*)
