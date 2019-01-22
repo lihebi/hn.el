@@ -61,7 +61,9 @@
     (make-local-variable 'local-id)
     (make-local-variable 'local-done)
     ;; asynchronously pop the comments
-    (make-thread #'hn-pop-comment-buffer-async)))
+    ;; FIXME async not working
+    ;; (make-thread #'hn-pop-comment-buffer-async)
+    (hn-pop-comment-buffer-async)))
 
 (defun hn-user-karma (user-id)
   (let ((user (hn-retrieve-user user-id)))
