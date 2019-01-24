@@ -106,3 +106,22 @@ about, with different tags. Then, you can
 Finally, all these reading data are cleanly stored in lists and can be
 version controlled to reproduce the exact reading status at any of
 your machine, at any given time.
+** TODO comment-stats of a thread
+
+When showing a list of threads, be it new threads or starred threads,
+I would like to know current comment status of them. I would expect
+the frequency of comments fall in a Gaussian distribution, i.e. when
+it is fresh, a few people comments; as it gets popular, a lot of
+comments pop up; after a day or two, people forget about it. It is
+nice to show a visual representation of what period the thread is in.
+
+** TODO Comment timestamp
+
+When reading comments, it makes sense to note what are the new
+comments. It can be done in two ways:
+- record last reading time; give an ascent for any comments after that
+  timestamp
+- Display the timestamp and give the timestamp an ascent indicating
+  the creation time
+
+** TODO comment buffer (hard) refresh
