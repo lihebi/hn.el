@@ -130,3 +130,9 @@ comments. It can be done in two ways:
   the creation time
 
 ** TODO comment buffer (hard) refresh
+
+** CANCELED cache stared articles
+   CLOSED: [2019-03-13 Wed 14:40]
+unless explicitly asked to update
+** DONE add labels to articles
+   CLOSED: [2019-03-13 Wed 15:44]

@@ -46,9 +46,12 @@
 
 (defface gold-on-white
   '((t :foreground "dark orange")) "" :group 'hn)
-
 (defface red-on-white
   '((t :foreground "red")) "" :group 'hn)
+(defface blue-on-white
+  '((t :foreground "blue")) "" :group 'hn)
+(defface green-on-white
+  '((t :foreground "green")) "" :group 'hn)
 
 (defcustom hn-hl-users '()
   "A list of users to follow. Articles or comments by these users
@@ -61,6 +64,22 @@
   comments containing these keywords are highlighted."
   :group 'hn
   :type '(list string))
+
+(defcustom hn-tags '()
+  "A list of tags to mark articles."
+  :group 'hn
+  :type '(list string))
+(defcustom hn-tag-faces '("red" "blue" "green" "gold")
+  "A list of colors."
+  :group 'hn
+  :type '(list string))
+
+(defun hn--string->face (color)
+  (pcase color
+    ("red" 'red-on-white)
+    ("gold" 'gold-on-white)
+    ("green" 'green-on-white)
+    ("blue" 'blue-on-white)))
 
 (defcustom hn-history-dir
   (locate-user-emacs-file "hn-history")
@@ -76,7 +95,6 @@ length is most variable."
   :group 'hn
   :type '(list symbol))
 
-
 (defvar *hn-top-stories* ())
 (defvar *hn-item-table* (make-hash-table :test 'equal)
   "A hash map from id to item.")
@@ -87,6 +105,7 @@ length is most variable."
 (defvar *hn-visited-cache* ()
   "Will clear after each `g' command.")
 (defvar *hn-num-stories* 20 "Number of stories")
+(defvar *hn-tag-table* (make-hash-table :test 'equal))
 
 ;; possible values:
 ;; 'all, 'new, 'starred
@@ -158,7 +177,14 @@ length is most variable."
   (when (not (file-exists-p (concat hn-history-dir "/hn-starred.el")))
     (hn--save-starred))
   (when (not (file-exists-p (concat hn-history-dir "/hn-user-table.el")))
-    (hn--save-user-table)))
+    (hn--save-user-table))
+  (when (not (file-exists-p (concat hn-history-dir "/hn-tag-table.el")))
+    (hn--save-tag-table)))
+
+(defun hn--save-tag-table ()
+  (hn--save-to-file (hash-to-list *hn-tag-table*) "hn-tag-table.el"))
+(defun hn--load-tag-table ()
+  (setq *hn-tag-table* (list-to-hash (hn--load-from-file "hn-tag-table.el"))))
 
 (defun hn--save-to-file (obj filename)
   (with-temp-file (concat hn-history-dir "/" filename)
@@ -174,14 +200,16 @@ length is most variable."
   (ensure-history-dir)
   (hn--save-visited)
   (hn--save-starred)
-  (hn--save-user-table))
+  (hn--save-user-table)
+  (hn--save-tag-table))
 
 (defun hn--load ()
   "Load all info."
   (ensure-history-dir)
   (hn--load-visited)
   (hn--load-starred)
-  (hn--load-user-table))
+  (hn--load-user-table)
+  (hn--load-tag-table))
 
 
 (defvar hn-mode-map
@@ -195,6 +223,7 @@ length is most variable."
     ;; (define-key map (kbd "la") #'hn-list-all)
     ;; (define-key map (kbd "ls") #'hn-list-starred)
     (define-key map "l" #'hn-list-cycle)
+    (define-key map "t" #'hn-add-tag)
     (define-key map "c" #'hn-browse-current-comment)
     (define-key map "u" #'hn-toggle-mark-as-read)
     (define-key map "s" #'hn-toggle-star)
@@ -205,6 +234,21 @@ length is most variable."
 (defun hn-reload-command ()
   (interactive)
   (setq *hn-visited-cache* '())
+  (hn-reload))
+
+(defun hn-add-tag (tag)
+  (interactive
+   (list
+    (completing-read "choose one tag: "
+                     hn-tags nil t)))
+  (let ((id (button-get (get-current-article-button) 'id)))
+    (let ((l (gethash id *hn-tag-table*)))
+      (puthash id (remove-duplicates
+                   (if l (cons tag l)
+                     (list tag))
+                   :test 'equal)
+               *hn-tag-table*)))
+  (hn--save-tag-table)
   (hn-reload))
 
 (define-derived-mode hn-mode special-mode "HN"
@@ -325,6 +369,7 @@ length is most variable."
                                     (score "%-7s")
                                     (comment "%-9s")
                                     (user "%-20s")
+                                    (tag "%-10s")
                                     (title "%s")
                                     (t (error "Unsupported symbol in field"))))
                                 hn-fields)) "\n"))
@@ -338,9 +383,16 @@ length is most variable."
               (time "Time")
               (comment (propertize "Comment" 'face 'hn-comment-count))
               (user (propertize "User (Karma)" 'face 'hn-user))
+              (tag "Tag")
               (title (propertize "Title" 'face 'hn-title))
               (t (error "Unsupported symbol in field"))))
           hn-fields))
+
+(defun hn--get-tag-face (tag)
+  (assert (member tag hn-tags))
+  (let ((idx (- (length hn-tags)
+                (length (member tag hn-tags)))))
+    (hn--string->face (elt hn-tag-faces idx))))
 
 (defun display-header ()
   "Insert headers."
@@ -377,6 +429,7 @@ length is most variable."
          (url (cdr (assoc 'url item)))
          (by (cdr (assoc 'by item)))
          (time (cdr (assoc 'time item)))
+         (tags (or (gethash id *hn-tag-table*) ""))
          (user-url (format "https://news.ycombinator.com/user?id=%s" by))
          (descendants  (cdr (assq 'descendants item))))
     (mapcar (lambda (sym)
@@ -402,6 +455,13 @@ length is most variable."
                           'id id
                           'help-echo (hn--comment-web-url id)
                           'url (hn--comment-web-url id)))
+                ;; TODO assign random color to the tags
+                ;; (tag (format "%s" tag))
+                (tag (string-join
+                      (mapcar (lambda (t)
+                                (propertize t 'face
+                                            (hn--get-tag-face t)))
+                              tags) " "))
                 (user (make-text-button
                        (format "%s (%s)"
                                (user-fontifier by)
