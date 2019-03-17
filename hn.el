@@ -218,7 +218,7 @@ length is most variable."
     (define-key map "c" #'hn-browse-current-comment)
     (define-key map "u" #'hn-toggle-mark-as-read)
     (define-key map "s" #'hn-toggle-star)
-    (define-key map (kbd "RET") #'hn-browse-current-comment)
+    (define-key map (kbd "RET") #'hn-browse-current-article)
     map)
   "Keymap used in hn buffer.")
 
@@ -337,14 +337,24 @@ length is most variable."
     (hn-comment id)))
 
 (defun hn-browse-current-comment ()
+  "Open comment viewer for current article."
   (interactive)
   (let* ((button (get-current-article-button))
          (id (button-get button 'id)))
     (hn-mark-as-read id)
     (hn-comment id)))
 
+(defun hn-browse-current-article ()
+  "Browse the current article in browser."
+  (interactive)
+  (let* ((button (get-current-article-button))
+         (id (button-get button 'id))
+         (url (button-get button 'url)))
+    (hn-mark-as-read id)
+    (browse-url url)))
+
 (defun get-current-article-button ()
-  (next-button (line-beginning-position)))
+  (previous-button (line-end-position)))
 
 (defun hn-ensure-major-mode ()
   "Barf if current buffer is not derived from `hackernews-mode'."
