@@ -130,9 +130,12 @@ comments. It can be done in two ways:
   the creation time
 
 ** TODO comment buffer (hard) refresh
+** TODO tag-grouped view
+And I can also easily see what are the unlabeled ones, and give labels
+accordingly.
 
-** CANCELED cache stared articles
-   CLOSED: [2019-03-13 Wed 14:40]
+** TODO cache stared articles
 unless explicitly asked to update
+
 ** DONE add labels to articles
    CLOSED: [2019-03-13 Wed 15:44]
