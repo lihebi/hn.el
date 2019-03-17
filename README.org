@@ -136,6 +136,8 @@ accordingly.
 
 ** TODO cache stared articles
 unless explicitly asked to update
+** TODO keyword faces
+Use the default keyword face, better looping colors.
 
 ** DONE add labels to articles
    CLOSED: [2019-03-13 Wed 15:44]
