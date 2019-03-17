@@ -35,15 +35,6 @@
 (defface hn-title-visited
   '((t :inherit hn-link-visited)) "" :group 'hn)
 
-(defface hn-comment-count
-  '((t :foreground "dark red")) "" :group 'hn)
-
-(defface hn-comment-count-visited
-  '((t :foreground "dark magenta")) "" :group 'hn)
-
-(defface hn-user
-  '((t :foreground "blue")) "" :group 'hn)
-
 (defface gold-on-white
   '((t :foreground "dark orange")) "" :group 'hn)
 (defface red-on-white
@@ -269,28 +260,29 @@ length is most variable."
   'face                    'hn-link
   'follow-link             t)
 
-(define-button-type 'hn-debug-button
-  'action                  #'browse-url-action
-  'face                    'hn-link
-  'follow-link             t)
-
 (define-button-type 'hn-title-visited
   'action                  #'browse-url-action
-  'face                    'hn-title-visited
+  'face                    'hn-link-visited
   'follow-link             t)
 
 (define-button-type 'hn-comment-button
   'action                  #'browse-url-and-mark-action
-  'face                    'hn-comment-count
+  'face                    'font-lock-constant-face
   'follow-link             t)
+
 (define-button-type 'hn-comment-visited
   'action                  #'browse-url-action
-  'face                    'hn-comment-count-visited
+  'face                    'hn-link-visited
   'follow-link             t)
 
 (define-button-type 'hn-user-button
   'action                  #'browse-url-action
-  'face                    'hn-user
+  'face                    'font-lock-function-name-face
+  'follow-link             t)
+
+(define-button-type 'hn-debug-button
+  'action                  #'browse-url-action
+  'face                    'hn-link
   'follow-link             t)
 
 
@@ -381,8 +373,8 @@ length is most variable."
               (id "ID")
               (score "Score")
               (time "Time")
-              (comment (propertize "Comment" 'face 'hn-comment-count))
-              (user (propertize "User (Karma)" 'face 'hn-user))
+              (comment (propertize "Comment" 'face 'font-lock-constant-face))
+              (user (propertize "User (Karma)" 'face 'font-lock-function-name-face))
               (tag "Tag")
               (title (propertize "Title" 'face 'hn-title))
               (t (error "Unsupported symbol in field"))))
