@@ -95,7 +95,7 @@ length is most variable."
   "A set of visited ids. FIXME Use hash?")
 (defvar *hn-visited-cache* ()
   "Will clear after each `g' command.")
-(defvar *hn-num-stories* 20 "Number of stories")
+(defvar *hn-num-stories* 50 "Number of stories")
 (defvar *hn-tag-table* (make-hash-table :test 'equal))
 
 ;; possible values:
@@ -107,7 +107,7 @@ length is most variable."
 (defun hn-load-more-stories ()
   "Increase number; retrieve and display."
   (interactive)
-  (setq *hn-num-stories* (+ *hn-num-stories* 20))
+  (setq *hn-num-stories* (+ *hn-num-stories* 50))
   (hn-reload))
 
 (defun hn-list-all ()
