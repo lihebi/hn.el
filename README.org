@@ -28,13 +28,12 @@ package using this configuration:
   :straight (hn :type git :host github
                 :repo "lihebi/hn.el")
   :config
+  (setq hn-tags '("pl" "os" "hw" "ai" "space"))
   (setq hn-hl-users '("okanesen" "wilsonfiifi"))
   (setq hn-hl-keywords '("lisp" "linux"
                          "Show HN"
-                         "\\bML\\b" "\\bAI\\b"
-                         "Tensorflow"))
-  (setq hn-fields '(star score comment user title)))
-
+                         "\\bML\\b" "\\bAI\\b"))
+  (setq hn-fields '(star time score comment tag user title)))
 #+END_SRC
 
 Run command =hn-master= to bring the buffer. Shortcuts:
@@ -44,6 +43,7 @@ Run command =hn-master= to bring the buffer. Shortcuts:
          starred. The current mode is displayed in the mode line,
          named HN-ALL, HN-NEW, HN-STARRED respectively.
 - =s= :: toggle star of an article
+- =t= :: add tag to the article
 - =u= :: toggle mark as read/unread
 - =d= :: mark as read and continue to next article
 - =g= :: refresh
