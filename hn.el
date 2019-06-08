@@ -217,6 +217,7 @@ length is most variable."
     (define-key map "t" #'hn-add-tag)
     (define-key map "c" #'hn-browse-current-comment)
     (define-key map "u" #'hn-toggle-mark-as-read)
+    (define-key map "d" #'hn-mark-as-read-and-continue)
     (define-key map "s" #'hn-toggle-star)
     (define-key map (kbd "RET") #'hn-browse-current-article)
     map)
@@ -232,6 +233,7 @@ length is most variable."
    (list
     (completing-read "choose one tag: "
                      hn-tags nil t)))
+  (assert (member tag hn-tags))
   (let ((id (button-get (get-current-article-button) 'id)))
     (let ((l (gethash id *hn-tag-table*)))
       (puthash id (remove-duplicates
@@ -305,6 +307,13 @@ length is most variable."
     (if (member id *hn-visited*)
         (hn-mark-as-unread id)
       (hn-mark-as-read id))))
+
+(defun hn-mark-as-read-and-continue ()
+  (interactive)
+  (let* ((button (get-current-article-button))
+         (id (button-get button 'id)))
+    (hn-mark-as-read id)
+    (next-line)))
 
 (defun hn-toggle-star ()
   (interactive)
