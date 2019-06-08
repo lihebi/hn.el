@@ -1,0 +1,65 @@
+#+TITLE: Hacker News Client
+
+* API research
+
+https://hacker-news.firebaseio.com/v0/
+
+1. total number of comments: traverse the tree and count
+2. children of an item: load item, get children IDs, and load those
+   children
+3. newest page: starts from Max ID and walks backward
+
+Each story, comment are items, have unique integer IDs, and under
+=/v0/item/<ID>=. Official examples:
+- =/v0/item/8863.json=
+- =/v0/item/2921983.json=
+
+Interesting field:
+- id
+- type: job, story, comment
+- by: username
+- time: creation time
+- text: HTML text
+- parent: comment's parent: can be a comment or story
+- kids: children comments, ranked
+- url: url of the story
+- score
+- title
+- descendants: for story only, total number of comments
+
+
+Users are by sensitive username:
+- =/v0/user/jl.json=
+
+Interesting fields:
+- id
+- created: date of creation
+- karma
+- about: self-description in HTML
+- submitted: list of stories and comments
+
+Real time query:
+
+- =/v0/maxitem.json= is the current largest id
+- =/v0/topstories.json=: up to 500
+- =/v0/newstories.json=: up to 500
+- =/v0/beststories.json=: up to 500
+- =/v0/askstories.json=: 200
+- =/v0/showstories.json=: 200
+- =/v0/jobstories.json=: 200
+- =/v0/updates.json=: no idea
+
+You can add ~?print=pretty~ to the URL for pretty printed data.
+
+
+* Features
+** TODO stream through news
+** TODO mark a thread
+The new comments are shown when available
+** TODO save a thread
+** TODO tree viewer
+- point
+- comments
+- user karma
+** TODO easy to explore
+e.g. a user, and mark his previous articles
