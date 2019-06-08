@@ -45,6 +45,7 @@ Run command =hn-master= to bring the buffer. Shortcuts:
          named HN-ALL, HN-NEW, HN-STARRED respectively.
 - =s= :: toggle star of an article
 - =u= :: toggle mark as read/unread
+- =d= :: mark as read and continue to next article
 - =g= :: refresh
 - =G= :: hard refresh. By default, the top stories list and items
          (stories and comments) are cached to avoid network
