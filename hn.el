@@ -110,6 +110,12 @@ length is most variable."
   (setq *hn-num-stories* (+ *hn-num-stories* 50))
   (hn-reload))
 
+(defun hn-load-all-stories ()
+  "Increase number; retrieve and display."
+  (interactive)
+  (setq *hn-num-stories* (+ *hn-num-stories* 500))
+  (hn-reload))
+
 (defun hn-list-all ()
   (interactive)
   (setq *hn-list-type* 'all)
@@ -208,6 +214,7 @@ length is most variable."
     (define-key map "g" #'hn-reload-command)
     (define-key map "G" #'hn-hard-reload)
     (define-key map "m" #'hn-load-more-stories)
+    (define-key map "M" #'hn-load-all-stories)
     (define-key map "n" #'next-line)
     (define-key map "p" #'previous-line)
     ;; (define-key map (kbd "ln") #'hn-list-new)
