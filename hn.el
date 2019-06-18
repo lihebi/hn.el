@@ -139,9 +139,9 @@ length is most variable."
           (all (hn-new-mode)
                'new)
           (new (hn-starred-mode)
-               'starred)
-          (starred (hn-all-mode)
-                   'all)
+               'all)
+          ;; (starred (hn-all-mode)
+          ;;          'all)
           (t (error "hn-list-type error"))))
   (hn-reload))
 
