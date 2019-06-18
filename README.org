@@ -100,6 +100,12 @@ We should be able to take variety of notes, including:
   login and post reply directly. Do it on web interface is easier and
   good enough.
 
+** TODO download top stories everyday
+HN topstory api contains only 500 entries. I would save the top story
+result every day so I can catch up as much as I like.
+
+** TODO sort by score/#comment
+
 ** TODO Following users
 Follow a user. You can set your user ID and the user IDs you care
 about, with different tags. Then, you can
