@@ -536,32 +536,51 @@ It must have a json/ folder containing json files."
     (setq *hn-source* s)))
 
 
+(define-derived-mode hn-select-source-mode special-mode "HN select source"
+  :group 'hn
+  (setq truncate-lines t)
+  (buffer-disable-undo))
+
 (defun hn-select-source ()
   ;; display a list of sources to select
   ;; open a new buffer
   ;; insert options buttons
   ;; select and set
   (interactive)
-  (let ((buffer (generate-new-buffer "hn-source-selection-buffer")))
+  
+  (let ((buffer (get-buffer-create "hn-source-selection-buffer")))
     (with-current-buffer buffer
-      (insert "Select a buffer:\n")
-      (insert (make-text-button
-               "[ ] current" nil
-               'type 'hn-select-source-button
-               'source 'current
-               'help-echo "select the default current HN top"))
-      (mapc (lambda (f)
-              (insert "\n")
-              (insert (make-text-button
-                       (concat "[ ] " f) nil
-                       'type 'hn-select-source-button
-                       'source (concat hn-top-dir "/json/" f)
-                       'help-echo "select a json file")))
-            (seq-filter (lambda (f)
-                          (string-suffix-p ".json" f))
-                        (let ((dir (concat hn-top-dir "/json")))
-                          (directory-files dir))))
-      (switch-to-buffer-other-window buffer))))
+      (hn-select-source-mode)
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (insert "Select a buffer:\n")
+        (insert (make-text-button
+                 "[ ] current" nil
+                 'type 'hn-select-source-button
+                 'source 'current
+                 'help-echo "select the default current HN top"))
+        (mapc (lambda (f)
+                (insert "\n")
+
+
+                (let* ((full-f (concat hn-top-dir "/json/" f))
+                       (ids (json-read-file full-f))
+                       (new-ids (seq-filter (lambda (id) (not (member id *hn-visited*)))
+                                            ids)))
+                  (insert (make-text-button
+                           (concat (format "[ ] %s (%s/%s new)"
+                                           f (length new-ids) (length ids)))
+                           nil
+                           'type 'hn-select-source-button
+                           'source (concat hn-top-dir "/json/" f)
+                           'help-echo "select a json file")))
+                
+                )
+              (seq-filter (lambda (f)
+                            (string-suffix-p ".json" f))
+                          (let ((dir (concat hn-top-dir "/json")))
+                            (directory-files dir)))))
+      (pop-to-buffer buffer))))
 
 (defun hn-retrieve-top-stories ()
   "Get a list of top stories."

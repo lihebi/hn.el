@@ -66,7 +66,9 @@ Run command =hn-master= to bring the buffer. Shortcuts:
 The history files are saved to =~/.emacs.d/hn-history/xxx.el=. You can
 keep a git repo to track your reading history.
 
-* Features Done
+
+* Features TODOlist Done
+
 
 ** DONE download top stories everyday
    CLOSED: [2019-07-23 Tue 14:58]
@@ -79,6 +81,8 @@ The json archive is maintained at https://github.com/lihebi/hn-top
     CLOSED: [2019-07-23 Tue 14:58]
 *** CANCELED instead of running on my computer, consider a cloud service
     CLOSED: [2019-07-23 Tue 14:58]
+*** DONE Show how many are unread in the select-source buffer
+    CLOSED: [2019-07-23 Tue 15:18]
 
 ** DONE Reproducible
    CLOSED: [2019-07-23 Tue 14:59]
