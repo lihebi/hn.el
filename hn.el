@@ -562,14 +562,16 @@ It must have a json/ folder containing json files."
         (mapc (lambda (f)
                 (insert "\n")
 
-
                 (let* ((full-f (concat hn-top-dir "/json/" f))
                        (ids (json-read-file full-f))
                        (new-ids (seq-filter (lambda (id) (not (member id *hn-visited*)))
+                                            ids))
+                       (starred-ids (seq-filter (lambda (id) (member id *hn-starred*))
                                             ids)))
                   (insert (make-text-button
-                           (concat (format "[ ] %s (%s/%s new)"
-                                           f (length new-ids) (length ids)))
+                           (concat (format "[ ] %s new: %s / starred: %s / all: %s"
+                                           f (length new-ids)
+                                           (length starred-ids) (length ids)))
                            nil
                            'type 'hn-select-source-button
                            'source (concat hn-top-dir "/json/" f)

@@ -83,6 +83,9 @@ The json archive is maintained at https://github.com/lihebi/hn-top
     CLOSED: [2019-07-23 Tue 14:58]
 *** DONE Show how many are unread in the select-source buffer
     CLOSED: [2019-07-23 Tue 15:18]
+*** DONE show how many stars in the select-source buffer
+    CLOSED: [2019-07-23 Tue 16:06]
+*** TODO select multiple sources
 
 ** DONE Reproducible
    CLOSED: [2019-07-23 Tue 14:59]
@@ -97,6 +100,7 @@ your machine, at any given time.
 
 
 * Features TODO
+** TODO hn-comment highlight user
 
 ** TODO detecting a rising star thread
 
