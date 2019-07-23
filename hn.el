@@ -213,6 +213,8 @@ length is most variable."
   (let ((map (make-sparse-keymap)))
     (define-key map "g" #'hn-reload-command)
     (define-key map "G" #'hn-hard-reload)
+    ;; q by default is bound to quit-window
+    ;; (define-key map "q" #'quit-window)
     (define-key map "m" #'hn-load-more-stories)
     (define-key map "M" #'hn-load-all-stories)
     (define-key map "n" #'next-line)
@@ -402,7 +404,10 @@ length is most variable."
               (comment (propertize "Comment" 'face 'font-lock-constant-face))
               (user (propertize "User (Karma)" 'face 'font-lock-function-name-face))
               (tag "Tag")
-              (title (propertize "Title" 'face 'hn-title))
+              (title (propertize (format "Title (source: %s)"
+                                         (if (equal *hn-source* 'current) *hn-source*
+                                           (car (last (split-string *hn-source* "/")))))
+                                 'face 'hn-title))
               (t (error "Unsupported symbol in field"))))
           hn-fields))
 
@@ -506,13 +511,68 @@ length is most variable."
    (apply #'format (hn--fields-to-format)
           (hn--fields-to-line item))))
 
+
+;; sources:
+;; - current
+;; - https://github.com/lihebi/hn-top  json/2019-07-23_04:00.json
+;; In particular, this variable is either 'current or a json file path
+(defvar *hn-source* 'current)
+
+(defcustom hn-top-dir "/path/to/repo/of/hn-top/"
+  "This is the local path to the hn-top repo.
+
+It must have a json/ folder containing json files."
+  :group 'hn
+  :type 'string)
+
+(define-button-type 'hn-select-source-button
+  'action #'hn-select-source-action
+  'face 'hn-link
+  'follow-link t)
+
+(defun hn-select-source-action (button)
+  (let ((s (button-get button 'source)))
+    (message (format "Source set to %s" s))
+    (setq *hn-source* s)))
+
+
+(defun hn-select-source ()
+  ;; display a list of sources to select
+  ;; open a new buffer
+  ;; insert options buttons
+  ;; select and set
+  (interactive)
+  (let ((buffer (generate-new-buffer "hn-source-selection-buffer")))
+    (with-current-buffer buffer
+      (insert "Select a buffer:\n")
+      (insert (make-text-button
+               "[ ] current" nil
+               'type 'hn-select-source-button
+               'source 'current
+               'help-echo "select the default current HN top"))
+      (mapc (lambda (f)
+              (insert "\n")
+              (insert (make-text-button
+                       (concat "[ ] " f) nil
+                       'type 'hn-select-source-button
+                       'source (concat hn-top-dir "/json/" f)
+                       'help-echo "select a json file")))
+            (seq-filter (lambda (f)
+                          (string-suffix-p ".json" f))
+                        (let ((dir (concat hn-top-dir "/json")))
+                          (directory-files dir))))
+      (switch-to-buffer-other-window buffer))))
+
 (defun hn-retrieve-top-stories ()
   "Get a list of top stories."
   (when (not *hn-top-stories*)
     (setq *hn-top-stories*
-          (let ((top-story-url (concat hn-api-prefix "/topstories.json")))
-            (json-read-url top-story-url))))
+          (if (equal *hn-source* 'current)
+              (let ((top-story-url (concat hn-api-prefix "/topstories.json")))
+                (json-read-url top-story-url))
+            (json-read-file *hn-source*))))
   *hn-top-stories*)
+
 
 (defun hn-reload ()
   (interactive)
@@ -561,6 +621,7 @@ length is most variable."
         (erase-buffer))
       (hn-all-mode)
       (hn--load)
+      (setq *hn-source* 'current)
       (hn-reload))
     ;; view comment
     (pop-to-buffer buffer)))

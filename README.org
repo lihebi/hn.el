@@ -33,6 +33,7 @@ package using this configuration:
   (setq hn-hl-keywords '("lisp" "linux"
                          "Show HN"
                          "\\bML\\b" "\\bAI\\b"))
+  (setq hn-top-dir "/home/xxx/github/hn-top/")
   (setq hn-fields '(star time score comment tag user title)))
 #+END_SRC
 
@@ -65,7 +66,33 @@ Run command =hn-master= to bring the buffer. Shortcuts:
 The history files are saved to =~/.emacs.d/hn-history/xxx.el=. You can
 keep a git repo to track your reading history.
 
-* Detailed Feature List (TODOs)
+* Features Done
+
+** DONE download top stories everyday
+   CLOSED: [2019-07-23 Tue 14:58]
+HN topstory api contains only 500 entries. I would save the top story
+result every day so I can catch up as much as I like.
+
+The json archive is maintained at https://github.com/lihebi/hn-top
+
+*** DONE add options to read json from this repo
+    CLOSED: [2019-07-23 Tue 14:58]
+*** CANCELED instead of running on my computer, consider a cloud service
+    CLOSED: [2019-07-23 Tue 14:58]
+
+** DONE Reproducible
+   CLOSED: [2019-07-23 Tue 14:59]
+Finally, all these reading data are cleanly stored in lists and can be
+version controlled to reproduce the exact reading status at any of
+your machine, at any given time.
+** DONE comment buffer (hard) refresh
+   CLOSED: [2019-07-23 Tue 15:00]
+
+** DONE add labels to articles
+   CLOSED: [2019-03-13 Wed 15:44]
+
+
+* Features TODO
 
 ** TODO detecting a rising star thread
 
@@ -100,11 +127,9 @@ We should be able to take variety of notes, including:
   login and post reply directly. Do it on web interface is easier and
   good enough.
 
-** TODO download top stories everyday
-HN topstory api contains only 500 entries. I would save the top story
-result every day so I can catch up as much as I like.
-
 ** TODO sort by score/#comment
+** Show/filter by source
+** AskHN and others: show author comment
 
 ** TODO Following users
 Follow a user. You can set your user ID and the user IDs you care
@@ -114,10 +139,6 @@ about, with different tags. Then, you can
   post a thread or comment
 - when reading the list or comments, have their ones highlighted
 
-** TODO Reproducible
-Finally, all these reading data are cleanly stored in lists and can be
-version controlled to reproduce the exact reading status at any of
-your machine, at any given time.
 ** TODO comment-stats of a thread
 
 When showing a list of threads, be it new threads or starred threads,
@@ -136,7 +157,6 @@ comments. It can be done in two ways:
 - Display the timestamp and give the timestamp an ascent indicating
   the creation time
 
-** TODO comment buffer (hard) refresh
 ** TODO tag-grouped view
 And I can also easily see what are the unlabeled ones, and give labels
 accordingly.
@@ -146,5 +166,3 @@ unless explicitly asked to update
 ** TODO keyword faces
 Use the default keyword face, better looping colors.
 
-** DONE add labels to articles
-   CLOSED: [2019-03-13 Wed 15:44]
