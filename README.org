@@ -98,6 +98,8 @@ your machine, at any given time.
 ** DONE add labels to articles
    CLOSED: [2019-03-13 Wed 15:44]
 
+** DONE AskHN and others: show author comment
+   CLOSED: [2019-07-23 Tue 18:10]
 
 * Features TODO
 ** TODO hn-comment highlight user
@@ -137,7 +139,6 @@ We should be able to take variety of notes, including:
 
 ** TODO sort by score/#comment
 ** Show/filter by source
-** AskHN and others: show author comment
 
 ** TODO Following users
 Follow a user. You can set your user ID and the user IDs you care

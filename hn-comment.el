@@ -45,6 +45,14 @@
           ;; add the current article
           (display-item (hn-retrieve-item id))
           (insert "\n\n")
+
+          ;; if the post has text, show it on top
+          (when (assoc 'text item)
+            (let ((pos (point)))
+              (insert (title-fontifier (html-wrapper (cdr (assoc 'text item)))))
+              (insert "\n\n")
+              (fill-region pos (point))))
+          
           ;; comments
           (mapc (lambda (id)
                   (hn-display-comment id 0))
