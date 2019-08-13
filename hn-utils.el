@@ -14,6 +14,7 @@
 
 ;;; Code:
 
+(require 'hn-vars)
 (require 'json)
 
 (defun decode-html-entities (html)
@@ -45,12 +46,54 @@
     (url-insert-file-contents url)
     (json-read)))
 
-(defun hn-retrieve-item (id)
+(defun hn-retrieve-item-internal (id)
   (when (not (gethash id *hn-item-table*))
     (let ((item-url
            (format (concat hn-api-prefix "/item/%s.json") id)))
       (puthash id (json-read-url item-url) *hn-item-table*)))
   (gethash id *hn-item-table*))
+
+(defun hn--read-file (fname)
+  "Read file FNAME into an s-exp."
+  (with-temp-buffer
+    (insert-file-contents fname)
+    (read (current-buffer))))
+
+(defun hn--write-file (obj fname)
+  "Write (pretty-print) OBJ into file FNAME."
+  (with-temp-file fname
+    (pp obj (current-buffer))))
+
+(defun hn--time-to-hours (t)
+  "This is to implement time-to-hours.
+
+time-to-number-of-days and time-to-seconds agree. time-to-days seems to be different."
+  (/ (time-to-seconds t) 3600))
+
+(defun hn-retrieve-item (id)
+  ;; first check if it is cached
+  "Retrieve item of ID from cache or HN server."
+  ;; test with '(20604419 20578976 20604119 20605660 20585637 20589216)
+  (let ((fname (concat hn-history-dir "/cache/" (number-to-string id))))
+    (if (and (file-exists-p fname)
+             (let ((now
+                    (hn--time-to-hours (current-time)))
+                   (orig
+                    (hn--time-to-hours (seconds-to-time (cdr (assoc 'time (hn--read-file fname))))))
+                   (last-modified
+                    (hn--time-to-hours
+                     (file-attribute-modification-time
+                      (file-attributes fname)))))
+               (< (- now orig)
+                  (* 2 (- last-modified orig)))))
+        (progn
+          (message "HN: Using cached version.")
+          (hn--read-file fname))
+      (progn
+        (message "HN: Retrieving and saving.")
+        (let ((item (hn-retrieve-item-internal id)))
+          (hn--write-file item fname)
+          item)))))
 
 (defun hn-retrieve-user (id)
   (when (not (gethash id *hn-user-table*))
@@ -114,6 +157,16 @@ Each element is a list: (list key value)."
             (puthash (car v) (cadr v) res))
           hash-list)
     res))
+
+(defun hn-retrieve-top-stories ()
+  "Get a list of top stories."
+  (when (not *hn-top-stories*)
+    (setq *hn-top-stories*
+          (if (equal *hn-source* 'current)
+              (let ((top-story-url (concat hn-api-prefix "/topstories.json")))
+                (json-read-url top-story-url))
+            (json-read-file *hn-source*))))
+  *hn-top-stories*)
 
 (provide 'hn-utils)
 

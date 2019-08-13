@@ -67,8 +67,7 @@ The history files are saved to =~/.emacs.d/hn-history/xxx.el=. You can
 keep a git repo to track your reading history.
 
 
-* Features TODOlist Done
-
+* Feature list (TODOs)
 
 ** DONE download top stories everyday
    CLOSED: [2019-07-23 Tue 14:58]
@@ -101,8 +100,38 @@ your machine, at any given time.
 ** DONE AskHN and others: show author comment
    CLOSED: [2019-07-23 Tue 18:10]
 
-* Features TODO
+** TODO export starred articles as a webpage
+I'm defining a new data format for the history file.
+
+starred:
+
+#+BEGIN_EXAMPLE racket
+((ID (title xxx)
+     (tag t ...)
+     (date xxx)
+     (other-attr xxx) ...)) ...)
+#+END_EXAMPLE
+
+Side effect: if an article gets unstarred, its tag is lost.
+
+Example:
+
+#+BEGIN_EXAMPLE
+((20105996 "Title" ("tag1" "tag2" ...))
+ (20105996 "Title" ("tag1" "tag2" ...)) ...)
+#+END_EXAMPLE
+
+
+
+
 ** TODO hn-comment highlight user
+** TODO star comments
+** TODO add notes
+About the reason I starred, my points on this topic, etc.
+
+** TODO recent post
+If a post is very recent, e.g. within 2 hours, the score is not
+accurate, I need to pay more attention not to miss important posts.
 
 ** TODO detecting a rising star thread
 
@@ -170,8 +199,27 @@ comments. It can be done in two ways:
 And I can also easily see what are the unlabeled ones, and give labels
 accordingly.
 
-** TODO cache stared articles
+** DONE cache articles
+   CLOSED: [2019-08-13 Tue 18:06]
 unless explicitly asked to update
+
+Or I might just cache the starred threads, because I don't really want
+to put the #comment and score version controlled. I'll need a policy
+when to update the cache.
+
+Assuming =date= of the thread, =last-modified= of the file, =now= is
+current time. Round everything to number of hours. Set
+
+#+BEGIN_EXAMPLE
+x = last-modified - date
+y = now - date
+if y > 2 * x, update
+#+END_EXAMPLE
+
+This will set an exponential update policy.
+
+
+
 ** TODO keyword faces
 Use the default keyword face, better looping colors.
 
