@@ -68,6 +68,15 @@
           (t (error "hn-list-type error"))))
   (hn-reload))
 
+(defun hn-generate-json-for-web ()
+  "Generate a json file containing starred articles for webpage
+listing."
+  (interactive)
+  (hn--load)
+  (with-temp-file (concat hn-history-dir "/starred.json")
+    (insert (json-encode (mapcar #'hn-retrieve-item *hn-starred*)))
+    (json-pretty-print-buffer)))
+
 (defun hn-ensure-major-mode ()
   "Barf if current buffer is not derived from `hackernews-mode'."
   (unless (derived-mode-p #'hn-mode)
@@ -82,6 +91,7 @@
       (let ((inhibit-read-only t))
         (erase-buffer))
       (hn-all-mode)
+      ;; FIXME better loading and saving scheme?
       (hn--load)
       (setq *hn-source* 'current)
       (hn-reload))
