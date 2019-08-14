@@ -100,28 +100,15 @@ your machine, at any given time.
 ** DONE AskHN and others: show author comment
    CLOSED: [2019-07-23 Tue 18:10]
 
-** TODO export starred articles as a webpage
-I'm defining a new data format for the history file.
+** DONE export starred articles as a webpage
+   CLOSED: [2019-08-14 Wed 14:41]
 
-starred:
-
-#+BEGIN_EXAMPLE racket
-((ID (title xxx)
-     (tag t ...)
-     (date xxx)
-     (other-attr xxx) ...)) ...)
-#+END_EXAMPLE
-
-Side effect: if an article gets unstarred, its tag is lost.
-
-Example:
-
-#+BEGIN_EXAMPLE
-((20105996 "Title" ("tag1" "tag2" ...))
- (20105996 "Title" ("tag1" "tag2" ...)) ...)
-#+END_EXAMPLE
-
-
+Use the =hn-generate-json-for-web= to generate a json file containing
+your starred articles and your tags. Then you can compose a webpage
+(for example
+[[https://github.com/lihebi/homepage/blob/master/assets/hn.js][my js
+file]]) using this json-file. You can find an exmaple webpage at
+[[http://lihebi.com/hn.html][my collection of articles]].
 
 
 ** TODO hn-comment highlight user
