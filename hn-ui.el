@@ -216,7 +216,13 @@
                      'help-echo (format (concat hn-api-prefix "/item/%s.json") id)
                      'url (format (concat hn-api-prefix "/item/%s.json") id)))
                 (score (format "%s" score))
-                (time (format-time-string "%m/%d/%y" (seconds-to-time time)))
+                ;; if time is very recent, show in highlight color
+                (time (propertize (format-time-string "%m/%d/%y" (seconds-to-time time))
+                                  'face (let ((delta (- (hn--time-to-hours (current-time))
+                                                        (hn--time-to-hours (seconds-to-time time)))))
+                                          (cond ((< delta 2) 'font-lock-warning-face)
+                                                ((< delta 4) 'font-lock-string-face)
+                                                (t 'default)))))
                 (comment (make-text-button
                           (format "%s" (or descendants 0)) nil
                           'type (if (member id *hn-visited*)
