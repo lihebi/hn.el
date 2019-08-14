@@ -62,6 +62,12 @@ When nil, visited links are not persisted across sessions."
   :group 'hn
   :type '(choice file (const :tag "None" nil)))
 
+(defcustom hn-export-json-file
+  (concat (locate-user-emacs-file "hn-history") "/starred.json")
+  "The exporting json file for web serving."
+  :group 'hn
+  :type '(choice file (const :tag "None" nil)))
+
 (defcustom hn-fields
   '(star score comment user title)
   "Fields on article page.  Title should be at the end because its

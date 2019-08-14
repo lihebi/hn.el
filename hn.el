@@ -73,8 +73,11 @@
 listing."
   (interactive)
   (hn--load)
-  (with-temp-file (concat hn-history-dir "/starred.json")
-    (insert (json-encode (mapcar #'hn-retrieve-item *hn-starred*)))
+  (with-temp-file hn-export-json-file
+    (insert (json-encode (mapcar (lambda (id)
+                                   (append (hn-retrieve-item id)
+                                           (list (cons 'tags (or (gethash id *hn-tag-table*) '())))))
+                                 *hn-starred*)))
     (json-pretty-print-buffer)))
 
 (defun hn-ensure-major-mode ()
