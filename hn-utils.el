@@ -87,10 +87,10 @@ time-to-number-of-days and time-to-seconds agree. time-to-days seems to be diffe
                (< (- now orig)
                   (* 2 (- last-modified orig)))))
         (progn
-          (message "HN: Using cached version.")
+          ;; (message "HN: Using cached version.")
           (hn--read-file fname))
       (progn
-        (message "HN: Retrieving and saving.")
+        ;; (message "HN: Retrieving and saving.")
         (let ((item (hn-retrieve-item-internal id)))
           (hn--write-file item fname)
           item)))))
