@@ -95,13 +95,13 @@ length is most variable."
 
 
 (defun hn--save-visited ()
-  (hn--save-to-file *hn-visited* "hn-visited.el"))
+  (hn--save-to-file (mapcar #'list *hn-visited*) "hn-visited.el"))
 (defun hn--load-visited ()
-  (setq *hn-visited* (hn--load-from-file "hn-visited.el")))
+  (setq *hn-visited* (apply #'append (hn--load-from-file "hn-visited.el"))))
 (defun hn--save-starred ()
-  (hn--save-to-file *hn-starred* "hn-starred.el"))
+  (hn--save-to-file (mapcar #'list *hn-starred*) "hn-starred.el"))
 (defun hn--load-starred ()
-  (setq *hn-starred* (hn--load-from-file "hn-starred.el")))
+  (setq *hn-starred* (apply #'append (hn--load-from-file "hn-starred.el"))))
 
 (defun ensure-history-dir ()
   (when (not (file-exists-p hn-history-dir))

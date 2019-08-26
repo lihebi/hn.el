@@ -21,6 +21,7 @@
 (require 'hn-utils)
 (require 'hn-ui)
 (require 'hn-comment)
+(require 'hn-source)
 
 (defvar hn-mode-map
   (let ((map (make-sparse-keymap)))
