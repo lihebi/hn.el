@@ -59,6 +59,18 @@
   (hn--save-visited)
   (hn-reload))
 
+(defun hn--current-article-visited-p ()
+  (let* ((button (get-current-article-button))
+         (id (button-get button 'id)))
+    (member id *hn-visited*)))
+
+(defun hn-next-new-article ()
+  (interactive)
+  (next-line)
+  (while (and (hn--current-article-visited-p)
+              (not (= (point) (point-max))))
+    (next-line)))
+
 (defun hn-toggle-mark-as-read ()
   (interactive)
   (let* ((button (get-current-article-button))

@@ -31,7 +31,7 @@
     ;; (define-key map "q" #'quit-window)
     (define-key map "m" #'hn-load-more-stories)
     (define-key map "M" #'hn-load-all-stories)
-    (define-key map "n" #'next-line)
+    (define-key map "n" #'hn-next-new-article)
     (define-key map "p" #'previous-line)
     (define-key map "l" #'hn-list-cycle)
     (define-key map "t" #'hn-add-tag)
