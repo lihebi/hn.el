@@ -216,3 +216,6 @@ This will set an exponential update policy.
 ** TODO keyword faces
 Use the default keyword face, better looping colors.
 
+** TODO comment folding
+** TODO comment buffer key bindings
+n, p, goto the next comment on same level
