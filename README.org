@@ -75,10 +75,6 @@ result every day so I can catch up as much as I like.
 
 The json archive is maintained at https://github.com/lihebi/hn-top
 
-HN actually has the front page cache, for example
-https://news.ycombinator.com/front?day=2019-08-26. I would just show
-an UI to select and download them.
-
 However, it seems to contain only about 100 articles, instead
 of 500. Should be enough because many stories overlap.
 
@@ -90,6 +86,13 @@ of 500. Should be enough because many stories overlap.
     CLOSED: [2019-07-23 Tue 15:18]
 *** DONE show how many stars in the select-source buffer
     CLOSED: [2019-07-23 Tue 16:06]
+*** TODO Use HN's front page cache
+HN actually has the front page cache, for example
+https://news.ycombinator.com/front?day=2019-08-26. I would just show
+an UI to select and download them.
+
+** TODO options to select top 100 instead of 500
+E.g. see all top 100 in a week
 *** TODO select multiple sources
 
 ** DONE Reproducible
