@@ -332,7 +332,7 @@
   (clrhash *hn-item-table*)
   ;; (clrhash *hn-user-table*)
   ;; (hash-table-size *hn-user-table*)
-  ;; (setq *hn-num-stories* 20)
+  (setq *hn-num-stories* 50)
   (hn-reload))
 
 (provide 'hn-ui)
