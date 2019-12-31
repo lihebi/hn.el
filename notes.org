@@ -1,0 +1,157 @@
+#+TITLE: Implementation notes
+
+* TODO-list
+
+** STARTED fix performance issue
+
+** TODO show starred articles in [new] mode
+
+** TODO download top stories everyday
+HN topstory api contains only 500 entries. I would save the top story
+result every day so I can catch up as much as I like.
+
+The json archive is maintained at https://github.com/lihebi/hn-top
+
+However, it seems to contain only about 100 articles, instead
+of 500. Should be enough because many stories overlap.
+
+*** DONE add options to read json from this repo
+    CLOSED: [2019-07-23 Tue 14:58]
+*** CANCELED instead of running on my computer, consider a cloud service
+    CLOSED: [2019-07-23 Tue 14:58]
+*** DONE Show how many are unread in the select-source buffer
+    CLOSED: [2019-07-23 Tue 15:18]
+*** DONE show how many stars in the select-source buffer
+    CLOSED: [2019-07-23 Tue 16:06]
+*** STARTED Use HN's front page cache
+HN actually has the front page cache, for example
+https://news.ycombinator.com/front?day=2019-08-26. I would just show
+an UI to select and download them.
+
+** TODO options to select top 100 instead of 500
+E.g. see all top 100 in a week
+*** TODO select multiple sources
+
+
+
+** TODO hn-comment highlight user
+** TODO star comments
+** TODO add notes
+About the reason I starred, my points on this topic, etc.
+
+** TODO recent post
+If a post is very recent, e.g. within 2 hours, the score is not
+accurate, I need to pay more attention not to miss important posts.
+
+** TODO detecting a rising star thread
+
+Even if it is marked as "read", it might still be interesting. Maybe I
+just didn't get it when I first saw it.
+
+** TODO Subscribe for update for easy tracking
+When I read a topic on HN, I will only read the threads at that
+time. I'll probably not going to read any updates to the thread
+afterwards unless it is a reply to my comment (and I seldom post
+comments, thus very rarely to read the thread again). There needs a
+solution for that: I should be able to subscribe to the thread and
+receive the new contents and consume them easily.
+
+- Subscribe to a topic
+- list subscribed topics, and the meta data (score and comment count)
+- update (new comment) to subscribed topic should show up in a status
+  control panel
+- each comment status (new or read) is shown explicitly in the comment
+  tree-view
+- mark comment as read/unread
+
+** TODO easy for scanning
+- selected keyword highlights
+- comments & points highlights
+- selected source highlights
+
+** TODO Notes
+We should be able to take variety of notes, including:
+- Star/Label a comment/topic. Can give different labels.
+- Write notes. Can be used to compose a reply. Probably not support
+  login and post reply directly. Do it on web interface is easier and
+  good enough.
+
+** TODO sort by score/#comment
+** Show/filter by source
+
+** TODO Following users
+Follow a user. You can set your user ID and the user IDs you care
+about, with different tags. Then, you can
+- browse all history thread they post, comment
+- receive (see) their recent post in a higher priority whenever they
+  post a thread or comment
+- when reading the list or comments, have their ones highlighted
+
+** TODO comment-stats of a thread
+
+When showing a list of threads, be it new threads or starred threads,
+I would like to know current comment status of them. I would expect
+the frequency of comments fall in a Gaussian distribution, i.e. when
+it is fresh, a few people comments; as it gets popular, a lot of
+comments pop up; after a day or two, people forget about it. It is
+nice to show a visual representation of what period the thread is in.
+
+** TODO Comment timestamp
+
+When reading comments, it makes sense to note what are the new
+comments. It can be done in two ways:
+- record last reading time; give an ascent for any comments after that
+  timestamp
+- Display the timestamp and give the timestamp an ascent indicating
+  the creation time
+
+** TODO tag-grouped view
+And I can also easily see what are the unlabeled ones, and give labels
+accordingly.
+
+** TODO keyword faces
+Use the default keyword face, better looping colors.
+
+** TODO comment folding
+** TODO comment buffer key bindings
+n, p, goto the next comment on same level
+
+* DONE-list
+
+** DONE comment buffer (hard) refresh
+   CLOSED: [2019-07-23 Tue 15:00]
+
+** DONE add labels to articles
+   CLOSED: [2019-03-13 Wed 15:44]
+
+** DONE AskHN and others: show author comment
+   CLOSED: [2019-07-23 Tue 18:10]
+
+** DONE export starred articles as a webpage
+   CLOSED: [2019-08-14 Wed 14:41]
+
+Use the =hn-generate-json-for-web= to generate a json file containing
+your starred articles and your tags. Then you can compose a webpage
+(for example
+[[https://github.com/lihebi/homepage/blob/master/assets/hn.js][my js
+file]]) using this json-file. You can find an exmaple webpage at
+[[http://lihebi.com/hn.html][my collection of articles]].
+
+** DONE cache articles
+   CLOSED: [2019-08-13 Tue 18:06]
+unless explicitly asked to update
+
+Or I might just cache the starred threads, because I don't really want
+to put the #comment and score version controlled. I'll need a policy
+when to update the cache.
+
+Assuming =date= of the thread, =last-modified= of the file, =now= is
+current time. Round everything to number of hours. Set
+
+#+BEGIN_EXAMPLE
+x = last-modified - date
+y = now - date
+if y > 2 * x, update
+#+END_EXAMPLE
+
+This will set an exponential update policy.
