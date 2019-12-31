@@ -76,6 +76,32 @@ It must have a json/ folder containing json files."
                             (directory-files dir)))))
       (pop-to-buffer buffer))))
 
+;; The "select source" buffer should be a date list in reversed order,
+;; defaulting to recent 20 days. I should be able to list more.
+;;
+;; The file should be saved to /tmp maybe?
+(defun list-dates (num)
+  "List NUM of days, in reverse order."
+
+  ;; this is today
+  (format-time-string "%Y-%m-%d")
+  ;; the reverse operation
+  (date-to-time "2019-12-31")
+  ;; this is current time of type Time
+  (format-time-string "%Y-%m-%d" (current-time))
+  ;; how to get yesterday?
+  (format-time-string "%Y-%m-%d"
+                      (time-add (current-time)
+                                (- (* 24 60 60))))
+  ;; then I can implement
+  (mapcar (lambda (n)
+            (format-time-string "%Y-%m-%d"
+                                (time-add (current-time) (* n (- (* 24 60 60))))))
+          (number-sequence 1 num)))
+
+;; to test:
+;; (list-dates 5)
+
 (provide 'hn-source)
 
 

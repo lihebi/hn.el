@@ -2,7 +2,7 @@
 
 * TODO-list
 
-** STARTED fix performance issue
+** TODO fix performance issue
 
 ** TODO show starred articles in [new] mode
 
@@ -23,10 +23,36 @@ of 500. Should be enough because many stories overlap.
     CLOSED: [2019-07-23 Tue 15:18]
 *** DONE show how many stars in the select-source buffer
     CLOSED: [2019-07-23 Tue 16:06]
-*** STARTED Use HN's front page cache
+
+** CANCELED Use HN's front page cache
+CLOSED: [2019-12-31 Tue 14:43]
 HN actually has the front page cache, for example
 https://news.ycombinator.com/front?day=2019-08-26. I would just show
 an UI to select and download them.
+
+The listed days will download from hn's website, in the link
+https://news.ycombinator.com/front?day=2019-12-30
+
+However, there is not an API for past front pages, but [[https://news.ycombinator.com/item?id=19228452][they say]] it's in
+planning.
+
+[[https://github.com/hidroh/materialistic][HN android app]] used [[https://hn.algolia.com/api][algolia's API]], but [[https://github.com/hidroh/materialistic/blob/6eb09aff553308f7ecc7bc7ebb161be86fd4cee6/app/src/main/java/io/github/hidroh/materialistic/data/AlgoliaPopularClient.java#L44-L59][it is using]] MIN_CREATED_AT and
+MIN_CREATED_AT for ast_24h, past_week, past_month, past_year, which does not
+seem to be a good solution either.
+
+Well, a closer look at HN past pages, it contains 80 articles everyday. And it
+looks like the time the threads are posted, not the topstories for that
+day. Thus, I'm probably still run a cron job to save each day's json.
+
+
+
+
+
+** TODO use /tmp/ for storage
+- basically the cache folder
+- also the user's karma
+- put the starred json file elsewhere from history-files, maybe in =/srv/www=
+
 
 ** TODO options to select top 100 instead of 500
 E.g. see all top 100 in a week
