@@ -56,16 +56,19 @@
 (define-derived-mode hn-new-mode hn-mode "HN-NEW"
   :group 'hn)
 
+;;;###autoload
 (defun hn-list-cycle ()
+  "FIXME or is it because I didn't have a doc?"
   (interactive)
   (setq *hn-list-type*
         (case *hn-list-type*
           (all (hn-all-mode)
                'new)
           (new (hn-new-mode)
-               'starred)
-          (starred (hn-starred-mode)
-                   'all)
+               ;; 'starred
+               'all)
+          ;; (starred (hn-starred-mode)
+          ;;          'all)
           (t (error "hn-list-type error"))))
   (hn-reload))
 

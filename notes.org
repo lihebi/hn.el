@@ -2,6 +2,10 @@
 
 * TODO-list
 
+** TODO article ranking across days
+An article may rank low today, but maybe it has been ranking high several
+days. I want to reflect that.
+
 ** TODO fix performance issue
 
 ** TODO show starred articles in [new] mode

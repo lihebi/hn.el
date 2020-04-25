@@ -302,8 +302,44 @@
   (hn--save-tag-table)
   (hn-reload))
 
+(defun make-retriever (id)
+  (lambda ()
+    (hn-retrieve-item id)))
+
+(defun hn-load-items-multithread ()
+  (interactive)
+  (let* ((item-ids (case *hn-list-type*
+                     (all (seq-take (hn-retrieve-top-stories)
+                                    *hn-num-stories*))
+                     (new (seq-filter (lambda (id) (or (not (member id *hn-visited*))
+                                                       (member id *hn-visited-cache*)
+                                                       (member id *hn-starred*)))
+                                      (seq-take (hn-retrieve-top-stories)
+                                                *hn-num-stories*)))
+                     (starred *hn-starred*)
+                     (t (error "Error on *hn-list-type*")))))
+    (let ((threads (mapcar (lambda (id) (make-thread (make-retriever id)))
+                           item-ids))
+          (ct 0))
+      ;; FIXME it actually won't come here. It will stuck with all the threads
+      (while
+          (> (list-length (seq-filter #'identity (mapcar #'thread-alive-p threads))) 1)
+        (message "%s"
+                 (list-length (seq-filter
+                               #'identity (mapcar #'thread-alive-p threads))))
+        (sleep-for 1)
+        (setq ct (+ ct 1))
+        (message "%s" ct)
+        ;; force quite all 
+        (when (> ct 10)
+          (message "Force quiting downloading threads ..")
+          (mapc (lambda (t) (thread-signal t 'force-quit)))
+          (message "Done"))))))
+
+
 (defun hn-reload ()
   (interactive)
+  ;; FIXME it is awkward to redraw the entire interface
   (hn-ensure-major-mode)
   ;; during reload, check if we need to save some user data
   (when (> (- (hash-table-size *hn-user-table*) *hn-user-table-saved-size*) 30)
@@ -314,18 +350,19 @@
       (let ((inhibit-read-only t))
         (erase-buffer)
         (display-header)
-        (let* ((item-ids (case *hn-list-type*
-                           (all (seq-take (hn-retrieve-top-stories)
-                                          *hn-num-stories*))
-                           (new (seq-filter (lambda (id) (or (not (member id *hn-visited*))
-                                                             (member id *hn-visited-cache*)
-                                                             (member id *hn-starred*)))
-                                            (seq-take (hn-retrieve-top-stories)
-                                                      *hn-num-stories*)))
-                           (starred *hn-starred*)
-                           (t (error "Error on *hn-list-type*"))))
-               (items (mapcar #'hn-retrieve-item item-ids)))
-          (mapc #'display-item items))))
+        (when (> *hn-num-stories* 0)
+          (let* ((item-ids (case *hn-list-type*
+                             (all (seq-take (hn-retrieve-top-stories)
+                                            *hn-num-stories*))
+                             (new (seq-filter (lambda (id) (or (not (member id *hn-visited*))
+                                                               (member id *hn-visited-cache*)
+                                                               (member id *hn-starred*)))
+                                              (seq-take (hn-retrieve-top-stories)
+                                                        *hn-num-stories*)))
+                             (starred *hn-starred*)
+                             (t (error "Error on *hn-list-type*")))))
+            (let ((items (mapcar #'hn-retrieve-item item-ids)))
+              (mapc #'display-item items))))))
     (set-window-start (selected-window) winpos)
     (goto-char pos)))
 
@@ -342,7 +379,7 @@
   (clrhash *hn-item-table*)
   ;; (clrhash *hn-user-table*)
   ;; (hash-table-size *hn-user-table*)
-  (setq *hn-num-stories* 50)
+  (setq *hn-num-stories* 0)
   (hn-reload))
 
 (provide 'hn-ui)

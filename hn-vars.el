@@ -84,12 +84,12 @@ length is most variable."
   "A set of visited ids. FIXME Use hash?")
 (defvar *hn-visited-cache* ()
   "Will clear after each `g' command.")
-(defvar *hn-num-stories* 50 "Number of stories")
+(defvar *hn-num-stories* 0 "Number of stories")
 (defvar *hn-tag-table* (make-hash-table :test 'equal))
 
 ;; possible values:
 ;; 'all, 'new, 'starred
-(defvar *hn-list-type* 'all)
+(defvar *hn-list-type* 'new)
 (defvar *hn-starred* '())
 
 

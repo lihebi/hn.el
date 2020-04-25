@@ -42,9 +42,15 @@
   (format "https://news.ycombinator.com/item?id=%s" id))
 
 (defun json-read-url (url)
-  (with-temp-buffer
-    (url-insert-file-contents url)
-    (json-read)))
+  (condition-case nil
+      (with-temp-buffer
+        (url-insert-file-contents url)
+        (json-read))
+    (error (progn
+             (message "Error occurred!, retrying ..")
+             ;; calling itself FIXME stack overflow
+             (json-read-url url)
+             (error "...")))))
 
 (defun hn-retrieve-item-internal (id)
   (when (not (gethash id *hn-item-table*))
@@ -85,7 +91,7 @@ time-to-number-of-days and time-to-seconds agree. time-to-days seems to be diffe
                      (file-attribute-modification-time
                       (file-attributes fname)))))
                (< (- now orig)
-                  (* 2 (- last-modified orig)))))
+                  (* 5 (- last-modified orig)))))
         (progn
           ;; (message "HN: Using cached version.")
           (hn--read-file fname))
