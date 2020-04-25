@@ -59,6 +59,16 @@
   (hn--save-visited)
   (hn-reload))
 
+(defun hn-mark-all-as-read ()
+  (interactive)
+  (mapc (lambda (x) (add-to-list '*hn-visited* x))
+        ;; FIXME I should have maintained a list of stories in this buffer
+        (seq-take (hn-retrieve-top-stories)
+                  *hn-num-stories*))
+  (hn--save-visited)
+  ;; FIXME I should show the marked articles until next refresh
+  (hn-reload))
+
 (defun hn--current-article-visited-p ()
   (let* ((button (get-current-article-button))
          (id (button-get button 'id)))
