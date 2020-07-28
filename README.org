@@ -1,18 +1,7 @@
 #+TITLE: A HackerNews Client that Reads Comments, and More
 
 
-* Introduction
-
-Lincoln de Sousa has
-[[https://github.com/clarete/hackernews.el][clarete/hackernews.el]].
-It supports list stories, open link in internal/external browser, mark
-as read. However, that is hardly any improvement from reading
-hackernews on web.
-
-This client is designed to offer a premium reading experience,
-including reading comments.
-
-Screenshot:
+A hacker-news Emacs client.  Screenshot:
 
 [[./screenshot.png]]
 
@@ -39,6 +28,9 @@ Use the command =hn-generate-json-for-web=. E.g. [[https://lihebi.com/hn.html][m
 
 *** Add tags to article
 
+** Related Work
+Lincoln de Sousa has [[https://github.com/clarete/hackernews.el][clarete/hackernews.el]].  It supports list stories, open link
+in internal/external browser, mark as read.
 
 * Install and Usage
 
